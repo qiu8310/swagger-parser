@@ -1,0 +1,22 @@
+{
+  "name": "swagger-parser",
+  "version": "0.0.0",
+  "description": "",
+  "main": "dist/parser.js",
+  "types": "dist/parser.d.ts",
+  "scripts": {},
+  "keywords": [],
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "author": "Mora <qiuzhongleiabc@126.com> (https://github.com/qiu8310)",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^8.10.38",
+    "tslint": "^5.11.0",
+    "typescript": "^3.2.2"
+  },
+  "dependencies": {
+    "mora-scripts": "1.6.35"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2017",
+    "outDir": "dist",
+    "lib": [
+      "es2017"
+    ],
+    "sourceMap": false,
+    "rootDir": "src",
+    "declaration": true,
+    "removeComments": false,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": false,
+    "importHelpers": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "noImplicitThis": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitAny": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+  },
+  "include": [
+    "src"
+  ]
+}
