@@ -1,15 +1,14 @@
 /**!
  * 对 swagger2.0 的解析
  */
+import * as DotProp from 'mora-scripts/libs/lang/DotProp'
 
 import {swagger2} from './schema/swagger2'
-import * as DotProp from 'mora-scripts/libs/lang/DotProp'
-import {Type, ArrayType, ObjectType} from './struct/Type'
-import {Desc} from './struct/Desc'
 import {Definition} from './struct/Definition'
-import {SIMPLE_TYPE_MAP} from './config'
-import {Omit} from './util'
-import {writeFileSync} from 'fs'
+import {Desc} from './struct/Desc'
+import {Operation} from './struct/Operation'
+import {Type, ArrayType, ObjectType} from './struct/Type'
+import {Omit, eachObject} from './util'
 
 export namespace parser2 {
   export interface Options {
@@ -17,6 +16,44 @@ export namespace parser2 {
      * 如果 swagger 中的接口没有指定 tag 名称，则使用这个名称（ 默认为 "tag" ）
      */
     defaultTagName?: string
+
+    /**
+     * 默认情况下标识为 deprecated 的 api 会去除，设定此为 true 可以保留这些 api
+     */
+    reserveDeprecatedApi?: boolean
+
+    /**
+     * 对 tag 和 api 的名称处理
+     *
+     * 有些 swagger 生成的 tag 都默认会带 "-endpoint" 后缀，如 "order-endpoint"
+     * 同时，有些 swagger 生成的 api 都会加上 "UsingPOST/GET/DELETE" 后缀，如 "createOrderUsingPOST"
+     */
+    normalizeName?: boolean
+
+    /**
+     * 将 tag 的名称映射成另一个
+     *
+     * 如果返回 false，则整个 tag 和它下面的 api 都不会生成 json
+     * 如果返回 true，则名字不变
+     */
+    tagNameMap?: (oldName: string) => string | boolean
+
+    /**
+     * 将 api 的名称映射成另一个
+     *
+     * 如果返回 false，则会不会生成此 api 相关的 json
+     * 如果返回 true，则名字不变
+     */
+    apiNameMap?: (oldName: string) => string | boolean
+
+    /**
+     * 对 api 的参数或返回值进行过滤处理
+     *
+     * tagName、apiName 是 tagNameMap、apiNameMap 处理过后的值
+     *
+     * 注意：如果一个 api 有多个 tag，则同一个接口会多次调用此函数
+     */
+    operationMap?: (operation: Operation, tagName: string, apiName: string) => void
   }
 
   export namespace Returns {
@@ -29,27 +66,8 @@ export namespace parser2 {
     }
 
     export interface OperationsObject {
-      [operationId: string]: {
-        desc: string
-        method: string
-        /** 如果 path 中有参数，会使用 {} 包裹 */
-        path: string
-        parameters: ParameterObject[]
-        returns: Type
-      }
+      [operationId: string]: Operation
     }
-
-    export interface BodyParameterObject {
-      in: 'body'
-      type: Type
-    }
-
-    export interface RestParameterObject {
-      in: 'query' | 'header' | 'path' | 'formData' | 'cookie'
-      type: ObjectType
-    }
-
-    export type ParameterObject = BodyParameterObject | RestParameterObject
   }
 }
 
@@ -57,16 +75,17 @@ export function parser2(schema: swagger2.Schema, options: parser2.Options = {}) 
   const tags: parser2.Returns.TagsObject = {}
 
   // 遍历所有 path
-  Object.entries(schema.paths).forEach(([pathKey, pathObj]) => {
+  eachObject(schema.paths, (pathKey, pathObj) => {
     const {$ref, parameters, ...restPathObj} = pathObj
 
     // 遍历所有 operation (即 get/post/delete 这种 http method)
     const allPathObj: {[key: string]: swagger2.OperationObject} = {...getRef(schema, $ref), ...restPathObj} as any
-    Object.entries(allPathObj).forEach(([operationMethod, operationObject]) => {
+
+    eachObject(allPathObj, (operationMethod, operationObject) => {
       // 合并全局定义的 parameters
       const operationParameters = [...(parameters || []), ...(operationObject.parameters || [])]
 
-      if (operationObject.deprecated) return
+      if (operationObject.deprecated && !options.reserveDeprecatedApi) return
 
       // 将 http method 改成大写
       operationMethod = operationMethod.toUpperCase()
@@ -76,23 +95,53 @@ export function parser2(schema: swagger2.Schema, options: parser2.Options = {}) 
       if (!operationTags.length) operationTags.push(options.defaultTagName || 'tag')
 
       // 遍历所有 tag ( 一般一个 api 只会定义一个 tag )
-      operationTags.forEach(t => {
-        let operations = getObjectValue(tags, t)
-        let operation = getObjectValue(operations, operationObject.operationId)
-        operation.method = operationMethod
+      operationTags.forEach(tagName => {
+        let apiName = operationObject.operationId
+
+        if (options.normalizeName) tagName = normalizeTagName(tagName)
+        if (options.tagNameMap) {
+          let newname = options.tagNameMap(tagName)
+          if (!newname) return
+          if (typeof newname === 'string') tagName = newname
+        }
+
+        if (options.normalizeName) apiName = normalizeApiName(apiName)
+        if (options.apiNameMap) {
+          let newname = options.apiNameMap(apiName)
+          if (!newname) return
+          if (typeof newname === 'string') apiName = newname
+        }
+
+        let operations = getObjectValue(tags, tagName)
+        let operation = {} as Operation.OperationObject
+
+        operation.rawId = operationObject.operationId
+        operation.method = operationMethod.toUpperCase()
         operation.path = pathKey
 
-        operation.desc = parseOperationDesc(operationObject)
+        parseOperationDesc(operationObject).assignTo(operation)
         operation.parameters = parseOperationParameters(schema, operationParameters)
 
-        // TODO: operationObject.security
+        // operation.returns
+        let r = operationObject.responses['200'] || operationObject.responses.default
+        let returnType = new Type('any')
+        if (r) {
+          r = mergeRef(r as any, schema) as swagger2.ResponseObject
+          if (r.schema) {
+            returnType = getSchemaObjectType(schema, r.schema, true)
+          }
+          if (r.description) returnType.desc = r.description
+        }
+        operation.returns = returnType
+
+        operations[apiName] = new Operation(operation)
+        if (options.operationMap) options.operationMap(operations[apiName], tagName, apiName)
       })
 
     })
   })
 
-  // console.log(tags)
-  writeFileSync('./s.json', JSON.stringify(tags, null, 2))
+  return tags
 }
 
 function parseOperationDesc(operationObject: swagger2.OperationObject) {
@@ -104,19 +153,25 @@ function parseOperationDesc(operationObject: swagger2.OperationObject) {
   let {externalDocs} = operationObject
   if (externalDocs) desc.push(`${externalDocs.description || 'external docs'} @see ${externalDocs.url}`)
 
-  return desc.toString()
+  return desc
 }
 
-function parseObjectDesc<T extends {description?: string, enum?: any[], default?: any}>(param: T) {
+
+function parse2definition(param: swagger2.SchemaObject | swagger2.RestParameterObject, def: Definition) {
   let desc = new Desc()
   desc.push(param.description)
-  if (param.enum) desc.push(`可选值：${param.enum.map(e => JSON.stringify(e)).join(' | ')}`)
-  if (param.hasOwnProperty('default')) desc.push(`默认值：${JSON.stringify(param.default)}`)
-  return desc.toString()
+  desc.assignTo(def)
+
+  if (param.enum) {
+    def.enum = param.enum.map(a => JSON.stringify(a))
+  }
+  if (param.hasOwnProperty('default')) {
+    def.defaultValue = JSON.stringify(param.default)
+  }
 }
 
-function parseOperationParameters(schema: swagger2.Schema, operationParameters: swagger2.ParameterObject[]): parser2.Returns.ParameterObject[] {
-  let res: parser2.Returns.ParameterObject[] = []
+function parseOperationParameters(schema: swagger2.Schema, operationParameters: swagger2.ParameterObject[]): Operation.ParameterObject[] {
+  let res: Operation.ParameterObject[] = []
   let map: {[key: string]: Definition[]} = {
     query: [],
     header: [],
@@ -129,13 +184,13 @@ function parseOperationParameters(schema: swagger2.Schema, operationParameters: 
       const type = getSchemaObjectType(schema, p.schema)
       if (!type.desc && p.description) type.desc = p.description
       const found = res.find(r => r.in === p.in)
-      const foundObj: parser2.Returns.ParameterObject = !found ? {in: p.in, type} : found
+      const foundObj: Operation.ParameterObject = !found ? {in: p.in, type} : found
       if (found) foundObj.type = type
       else res.push(foundObj)
     } else {
-      let def = new Definition(p.name, new Type(SIMPLE_TYPE_MAP[p.type] || p.type))
+      let def = new Definition(p.name, new Type(p.type))
       def.required = !!p.required
-      def.desc = parseObjectDesc(p)
+      parse2definition(p, def)
       map[p.in].push(def)
     }
   })
@@ -148,14 +203,20 @@ function parseOperationParameters(schema: swagger2.Schema, operationParameters: 
   return res
 }
 
-function getSchemaObjectType(schema: swagger2.Schema, obj: swagger2.SchemaObject) {
+/**
+ *
+ * @param schema
+ * @param obj
+ * @param defaultRequired 默认是否 required （ 主要针对 response，response 中的对象应该统一 required ）
+ */
+function getSchemaObjectType(schema: swagger2.Schema, obj: swagger2.SchemaObject, defaultRequired?: boolean) {
   const mergedObj = mergeRef(obj, schema)
   const {type = 'any', items, required = []} = mergedObj
   let rtn: Type
   if (type === 'array') {
     if (items) {
       const mergedItems = mergeRef(items, schema)
-      const mergedType = getSchemaObjectType(schema, mergedItems)
+      const mergedType = getSchemaObjectType(schema, mergedItems, defaultRequired)
       rtn = new ArrayType(mergedType)
     } else {
       rtn = new ArrayType(new Type('any'))
@@ -163,16 +224,16 @@ function getSchemaObjectType(schema: swagger2.Schema, obj: swagger2.SchemaObject
   } else if (type === 'object') {
     const defs: Definition[] = []
     rtn = new ObjectType(defs)
-    Object.entries(mergedObj.properties || {}).forEach(([propKey, propValue]) => {
-      const def = new Definition(propKey, getSchemaObjectType(schema, propValue))
-      def.required = required.includes(propKey)
+    eachObject(mergedObj.properties || {}, (propKey, propValue) => {
+      const def = new Definition(propKey, getSchemaObjectType(schema, propValue, defaultRequired))
+      def.required = defaultRequired && !required.length ? defaultRequired : required.includes(propKey)
       defs.push(def)
     })
   } else {
     let typeArr = Array.isArray(type) ? type : [type]
-    rtn = new Type(typeArr.map(t => SIMPLE_TYPE_MAP[t] || t).join(' | '))
+    rtn = new Type(typeArr.join(' | '))
   }
-  rtn.desc = parseObjectDesc(mergedObj)
+  if (mergedObj.description) rtn.desc = mergedObj.description
   return rtn
 }
 
@@ -205,5 +266,13 @@ function getObjectValue<T>(obj: {[key: string]: T}, key: string, defaultValue: T
   return obj[key]
 }
 
-parser2(require('../example/daybreak.json'))
-// parser2(require('../example/credit.json'))
+function normalizeTagName(name: string) {
+  return name.replace(/-endpoint$/, '')
+}
+
+function normalizeApiName(name: string) {
+  return name.replace(/Using[A-Z]+$/, '')
+}
+
+// parser2(require('../example-json/petstore.json'))
+// parser2(require('../example-json/credit.json'), {normalizeName: true, tagNameMap: name => name === 'order'})

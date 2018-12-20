@@ -14,6 +14,11 @@ export class Desc {
     if (deprecated) this.rows.push('@deprecated')
   }
 
+  assignTo<T extends {desc?: string}>(obj: T) {
+    let s = this.toString()
+    if (!s.trim()) obj.desc = s
+  }
+
   toString() {
     // markdown 需要换多行
     return this.rows.join(FORMAT.EOL.repeat(2))

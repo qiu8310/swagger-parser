@@ -22,6 +22,7 @@ export const SIMPLE_TYPE_MAP: {[key: string]: string} = {
   date: 'string',
   dateTime: 'string',
   password: 'string',
+  color: 'string',
   array: 'any[]',
   object: 'any',
   file: 'any',
