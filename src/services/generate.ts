@@ -32,7 +32,8 @@ export async function generate() {
 
       eachObject(tagObj, (apiName, operation) => {
         modal.push(`${TAB}export namespace ${apiName} {`)
-        modal.push(prefix(operation.toTS(), TAB.repeat(2)))
+        modal.push(prefix(operation.toModal(), TAB.repeat(2)))
+        console.log(operation.toFoeApi({...data}))
         modal.push(`${TAB}}`)
       })
 

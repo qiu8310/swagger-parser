@@ -1,9 +1,16 @@
 import {FORMAT} from '../config'
 import {Definition} from './Definition'
-import {Type, ObjectType} from './Type'
+import {Type, ObjectType, getDesc} from './Type'
+
+const {EOL, TAB} = FORMAT
+
 
 export namespace Operation {
   export interface OperationObject {
+    /** 当前 api 所在的标签名称 */
+    tag: string
+    /** 处理过后的 operationId  */
+    id: string
     /** swagger 文档中的 operationId */
     rawId: string
     /** 描述 */
@@ -38,52 +45,95 @@ export class Operation {
 
   }
 
-  toTS() {
-    let {parameters, returns} = this.opt
-    let rows: string[] = []
+  private mergeParameters() {
+    let type = new ObjectType([])
+    this.opt.parameters.forEach(p => {
+      if (p.in === 'body') {
+        if (Type.isObjectType(p.type)) {
+          type.merge(p.type)
+        } else {
+          type.merge(new ObjectType([new Definition('__rawBody', p.type, true)]))
+        }
+      } else {
+        // 其它情况肯定是 ObjectType
+        if (Type.isObjectType(p.type)) {
+          type.merge(p.type)
+        } else {
+          throw new Error(`内部解析引擎问题！（非 body 类型的参数应该都是 ObjectType）`)
+        }
+      }
+    })
+    return type
+  }
+
+  toNodeApi() {
+
+  }
+
+  toFoeApi(config: {baseMethod?: string}) {
+    const {id, tag, parameters, desc, method, path} = this.opt
+    const hasOptions = parameters.length
+
+    // 获取配置
+    const settingRows = [`path: '${path.replace(/{(\w+)}/g, ':$1')}'`]
+    if (method !== config.baseMethod) settingRows.push(`path: '${method}'`)
+    if (parameters.find(p => p.in === 'formData')) settingRows.push(`http: {headers: {'Content-Type': 'application/x-www-form-urlencoded'}}`)
+    parameters.forEach(p => {
+      if (Type.isObjectType(p.type)) {
+        let str = p.type.definitions.map(d => d.name).join('&')
+        if (p.in === 'formData' || p.in === 'body') settingRows.push(`body: '${str}'`)
+        else if (p.in === 'header') settingRows.push(`header: '${str}'`)
+        else if (p.in === 'query') settingRows.push(`query: '${str}'`)
+      }
+    })
+    const setting = settingRows.join(', ')
+
+    // api 调用
+    const apiRows = [`export namespace ${id} {`]
+    if (hasOptions) apiRows.push(`${TAB}export type O = ${tag}.${id}.O`)
+    apiRows.push(`${TAB}export type R = ${tag}.${id}.R`, `}`, ...getDesc(desc))
+    if (hasOptions) {
+      apiRows.push(`export const ${id} = api<${id}.O, ${id}.R>(s + '${id}', {${setting}})`)
+    } else {
+      apiRows.push(`export const ${id} = api<${id}.R>(s + '${id}', {${setting}})`)
+    }
+
+    return apiRows.join(EOL)
+  }
+
+  /**
+   * modal 是给 foeApi 和 nodeApi 的 ts 定义
+   */
+  toModal() {
+    const {parameters, returns} = this.opt
+    const modal: string[] = []
 
     /**
      * 处理参数
      */
     if (parameters.length) {
-      let type = new ObjectType([])
-      parameters.forEach(p => {
-        if (p.in === 'body') {
-          if (Type.isObjectType(p.type)) {
-            type.merge(p.type)
-          } else {
-            type.merge(new ObjectType([new Definition('__rawBody', p.type, true)]))
-          }
-        } else {
-          // 其它情况肯定是 ObjectType
-          if (Type.isObjectType(p.type)) {
-            type.merge(p.type)
-          } else {
-            throw new Error(`内部解析引擎问题！（非 body 类型的参数应该都是 ObjectType）`)
-          }
-        }
-      })
-      type.toTS('RawOptions', rows)
-      rows.push(`export interface Options extends api.FilterRequest<RawOptions> {}`)
+      const paramType = this.mergeParameters()
+      paramType.toTS('Options', modal)
+      modal.push(`export interface O extends api.FilterRequest<Options> {}`)
     }
 
     /**
      * 处理返回值
      */
     if (Type.isNotSimpleType(returns)) {
-      returns.toTS('RawReturns', rows)
+      returns.toTS('Returns', modal)
     } else {
-      rows.push(`export type RawReturns = ${returns.toString()}`)
+      modal.push(`export type Returns = ${returns.toString()}`)
     }
 
     // 对象可以继承，非对象不能继承
     if (Type.isObjectType(returns)) {
-      rows.push(`export interface Returns extends api.FilterResponse<RawReturns> {}`)
+      modal.push(`export interface R extends api.FilterResponse<Returns> {}`)
     } else {
-      rows.push(`export type Returns = api.FilterResponse<RawReturns>`)
+      modal.push(`export type R = api.FilterResponse<Returns>`)
     }
 
-    return rows.join(FORMAT.EOL)
+    return modal.join(EOL)
   }
 
   /** 忽略指定位置的参数 */

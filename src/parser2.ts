@@ -115,6 +115,8 @@ export function parser2(schema: swagger2.Schema, options: parser2.Options = {}) 
         let operations = getObjectValue(tags, tagName)
         let operation = {} as Operation.OperationObject
 
+        operation.tag = tagName
+        operation.id = apiName
         operation.rawId = operationObject.operationId
         operation.method = operationMethod.toUpperCase()
         operation.path = pathKey

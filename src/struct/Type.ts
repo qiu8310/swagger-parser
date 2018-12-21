@@ -116,7 +116,7 @@ export class ArrayType extends Type {
 }
 
 
-function getDesc(desc: string | undefined) {
+export function getDesc(desc: string | undefined) {
   if (!desc) return []
   let lines = desc.split(/\r?\n/).map(l => {
     if (l.trim()) {

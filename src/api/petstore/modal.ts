@@ -2,122 +2,122 @@ import {api} from './base'
 
 export namespace pet {
   export namespace addPet {
-    export interface RawOptionsPropCategory {
+    export interface OptionsPropCategory {
       id?: number
       name?: string
     }
-    export type RawOptionsPropPhotoUrls = string[]
-    export interface RawOptionsPropTagsSubItem {
+    export type OptionsPropPhotoUrls = string[]
+    export interface OptionsPropTagsSubItem {
       id?: number
       name?: string
     }
-    export type RawOptionsPropTags = RawOptionsPropTagsSubItem[]
+    export type OptionsPropTags = OptionsPropTagsSubItem[]
     /**
      * Pet object that needs to be added to the store
      */
-    export interface RawOptions {
+    export interface Options {
       id?: number
-      category?: RawOptionsPropCategory
+      category?: OptionsPropCategory
       name: string
-      photoUrls: RawOptionsPropPhotoUrls
-      tags?: RawOptionsPropTags
+      photoUrls: OptionsPropPhotoUrls
+      tags?: OptionsPropTags
       status?: string
     }
-    export interface Options extends api.FilterRequest<RawOptions> {}
-    export type RawReturns = any
-    export type Returns = api.FilterResponse<RawReturns>
+    export interface O extends api.FilterRequest<Options> {}
+    export type Returns = any
+    export type R = api.FilterResponse<Returns>
   }
   export namespace updatePet {
-    export interface RawOptionsPropCategory {
+    export interface OptionsPropCategory {
       id?: number
       name?: string
     }
-    export type RawOptionsPropPhotoUrls = string[]
-    export interface RawOptionsPropTagsSubItem {
+    export type OptionsPropPhotoUrls = string[]
+    export interface OptionsPropTagsSubItem {
       id?: number
       name?: string
     }
-    export type RawOptionsPropTags = RawOptionsPropTagsSubItem[]
+    export type OptionsPropTags = OptionsPropTagsSubItem[]
     /**
      * Pet object that needs to be added to the store
      */
-    export interface RawOptions {
+    export interface Options {
       id?: number
-      category?: RawOptionsPropCategory
+      category?: OptionsPropCategory
       name: string
-      photoUrls: RawOptionsPropPhotoUrls
-      tags?: RawOptionsPropTags
+      photoUrls: OptionsPropPhotoUrls
+      tags?: OptionsPropTags
       status?: string
     }
-    export interface Options extends api.FilterRequest<RawOptions> {}
-    export type RawReturns = any
-    export type Returns = api.FilterResponse<RawReturns>
+    export interface O extends api.FilterRequest<Options> {}
+    export type Returns = any
+    export type R = api.FilterResponse<Returns>
   }
   export namespace findPetsByStatus {
-    export interface RawOptions {
+    export interface Options {
       /**
        * Status values that need to be considered for filter
        */
       status: any[]
     }
-    export interface Options extends api.FilterRequest<RawOptions> {}
-    export interface RawReturnsSubItemPropCategory {
+    export interface O extends api.FilterRequest<Options> {}
+    export interface ReturnsSubItemPropCategory {
       id: number
       name: string
     }
-    export type RawReturnsSubItemPropPhotoUrls = string[]
-    export interface RawReturnsSubItemPropTagsSubItem {
+    export type ReturnsSubItemPropPhotoUrls = string[]
+    export interface ReturnsSubItemPropTagsSubItem {
       id: number
       name: string
     }
-    export type RawReturnsSubItemPropTags = RawReturnsSubItemPropTagsSubItem[]
-    export interface RawReturnsSubItem {
+    export type ReturnsSubItemPropTags = ReturnsSubItemPropTagsSubItem[]
+    export interface ReturnsSubItem {
       id?: number
-      category?: RawReturnsSubItemPropCategory
+      category?: ReturnsSubItemPropCategory
       name: string
-      photoUrls: RawReturnsSubItemPropPhotoUrls
-      tags?: RawReturnsSubItemPropTags
+      photoUrls: ReturnsSubItemPropPhotoUrls
+      tags?: ReturnsSubItemPropTags
       status?: string
     }
     /**
      * successful operation
      */
-    export type RawReturns = RawReturnsSubItem[]
-    export type Returns = api.FilterResponse<RawReturns>
+    export type Returns = ReturnsSubItem[]
+    export type R = api.FilterResponse<Returns>
   }
   export namespace getPetById {
-    export interface RawOptions {
+    export interface Options {
       /**
        * ID of pet to return
        */
       petId: number
     }
-    export interface Options extends api.FilterRequest<RawOptions> {}
-    export interface RawReturnsPropCategory {
+    export interface O extends api.FilterRequest<Options> {}
+    export interface ReturnsPropCategory {
       id: number
       name: string
     }
-    export type RawReturnsPropPhotoUrls = string[]
-    export interface RawReturnsPropTagsSubItem {
+    export type ReturnsPropPhotoUrls = string[]
+    export interface ReturnsPropTagsSubItem {
       id: number
       name: string
     }
-    export type RawReturnsPropTags = RawReturnsPropTagsSubItem[]
+    export type ReturnsPropTags = ReturnsPropTagsSubItem[]
     /**
      * successful operation
      */
-    export interface RawReturns {
+    export interface Returns {
       id?: number
-      category?: RawReturnsPropCategory
+      category?: ReturnsPropCategory
       name: string
-      photoUrls: RawReturnsPropPhotoUrls
-      tags?: RawReturnsPropTags
+      photoUrls: ReturnsPropPhotoUrls
+      tags?: ReturnsPropTags
       status?: string
     }
-    export interface Returns extends api.FilterResponse<RawReturns> {}
+    export interface R extends api.FilterResponse<Returns> {}
   }
   export namespace updatePetWithForm {
-    export interface RawOptions {
+    export interface Options {
       /**
        * ID of pet that needs to be updated
        */
@@ -131,24 +131,24 @@ export namespace pet {
        */
       status?: string
     }
-    export interface Options extends api.FilterRequest<RawOptions> {}
-    export type RawReturns = any
-    export type Returns = api.FilterResponse<RawReturns>
+    export interface O extends api.FilterRequest<Options> {}
+    export type Returns = any
+    export type R = api.FilterResponse<Returns>
   }
   export namespace deletePet {
-    export interface RawOptions {
+    export interface Options {
       api_key?: string
       /**
        * Pet id to delete
        */
       petId: number
     }
-    export interface Options extends api.FilterRequest<RawOptions> {}
-    export type RawReturns = any
-    export type Returns = api.FilterResponse<RawReturns>
+    export interface O extends api.FilterRequest<Options> {}
+    export type Returns = any
+    export type R = api.FilterResponse<Returns>
   }
   export namespace uploadFile {
-    export interface RawOptions {
+    export interface Options {
       /**
        * ID of pet to update
        */
@@ -162,16 +162,16 @@ export namespace pet {
        */
       file?: any
     }
-    export interface Options extends api.FilterRequest<RawOptions> {}
+    export interface O extends api.FilterRequest<Options> {}
     /**
      * successful operation
      */
-    export interface RawReturns {
+    export interface Returns {
       code: number
       type: string
       message: string
     }
-    export interface Returns extends api.FilterResponse<RawReturns> {}
+    export interface R extends api.FilterResponse<Returns> {}
   }
 }
 export namespace store {
@@ -179,15 +179,15 @@ export namespace store {
     /**
      * successful operation
      */
-    export interface RawReturns {
+    export interface Returns {
     }
-    export interface Returns extends api.FilterResponse<RawReturns> {}
+    export interface R extends api.FilterResponse<Returns> {}
   }
   export namespace placeOrder {
     /**
      * Order modal
      */
-    export interface RawOptions {
+    export interface Options {
       id?: number
       petId?: number
       quantity?: number
@@ -195,11 +195,11 @@ export namespace store {
       status?: string
       complete?: boolean
     }
-    export interface Options extends api.FilterRequest<RawOptions> {}
+    export interface O extends api.FilterRequest<Options> {}
     /**
      * successful operation
      */
-    export interface RawReturns {
+    export interface Returns {
       id: number
       petId: number
       quantity: number
@@ -207,20 +207,20 @@ export namespace store {
       status: string
       complete: boolean
     }
-    export interface Returns extends api.FilterResponse<RawReturns> {}
+    export interface R extends api.FilterResponse<Returns> {}
   }
   export namespace getOrderById {
-    export interface RawOptions {
+    export interface Options {
       /**
        * ID of pet that needs to be fetched
        */
       orderId: number
     }
-    export interface Options extends api.FilterRequest<RawOptions> {}
+    export interface O extends api.FilterRequest<Options> {}
     /**
      * successful operation
      */
-    export interface RawReturns {
+    export interface Returns {
       id: number
       petId: number
       quantity: number
@@ -228,18 +228,18 @@ export namespace store {
       status: string
       complete: boolean
     }
-    export interface Returns extends api.FilterResponse<RawReturns> {}
+    export interface R extends api.FilterResponse<Returns> {}
   }
   export namespace deleteOrder {
-    export interface RawOptions {
+    export interface Options {
       /**
        * ID of the order that needs to be deleted
        */
       orderId: number
     }
-    export interface Options extends api.FilterRequest<RawOptions> {}
-    export type RawReturns = any
-    export type Returns = api.FilterResponse<RawReturns>
+    export interface O extends api.FilterRequest<Options> {}
+    export type Returns = any
+    export type R = api.FilterResponse<Returns>
   }
 }
 export namespace user {
@@ -247,7 +247,7 @@ export namespace user {
     /**
      * user modal
      */
-    export interface RawOptions {
+    export interface Options {
       id?: number
       username?: string
       firstName?: string
@@ -257,15 +257,15 @@ export namespace user {
       phone?: string
       userStatus?: number
     }
-    export interface Options extends api.FilterRequest<RawOptions> {}
-    export type RawReturns = any
-    export type Returns = api.FilterResponse<RawReturns>
+    export interface O extends api.FilterRequest<Options> {}
+    export type Returns = any
+    export type R = api.FilterResponse<Returns>
   }
   export namespace createUsersWithArrayInput {
     /**
      * user modal
      */
-    export interface RawOptionsPropRawBodySubItem {
+    export interface OptionsPropRawBodySubItem {
       id?: number
       username?: string
       firstName?: string
@@ -278,19 +278,19 @@ export namespace user {
     /**
      * List of user object
      */
-    export type RawOptionsPropRawBody = RawOptionsPropRawBodySubItem[]
-    export interface RawOptions {
-      __rawBody: RawOptionsPropRawBody
+    export type OptionsPropRawBody = OptionsPropRawBodySubItem[]
+    export interface Options {
+      __rawBody: OptionsPropRawBody
     }
-    export interface Options extends api.FilterRequest<RawOptions> {}
-    export type RawReturns = any
-    export type Returns = api.FilterResponse<RawReturns>
+    export interface O extends api.FilterRequest<Options> {}
+    export type Returns = any
+    export type R = api.FilterResponse<Returns>
   }
   export namespace createUsersWithListInput {
     /**
      * user modal
      */
-    export interface RawOptionsPropRawBodySubItem {
+    export interface OptionsPropRawBodySubItem {
       id?: number
       username?: string
       firstName?: string
@@ -303,16 +303,16 @@ export namespace user {
     /**
      * List of user object
      */
-    export type RawOptionsPropRawBody = RawOptionsPropRawBodySubItem[]
-    export interface RawOptions {
-      __rawBody: RawOptionsPropRawBody
+    export type OptionsPropRawBody = OptionsPropRawBodySubItem[]
+    export interface Options {
+      __rawBody: OptionsPropRawBody
     }
-    export interface Options extends api.FilterRequest<RawOptions> {}
-    export type RawReturns = any
-    export type Returns = api.FilterResponse<RawReturns>
+    export interface O extends api.FilterRequest<Options> {}
+    export type Returns = any
+    export type R = api.FilterResponse<Returns>
   }
   export namespace loginUser {
-    export interface RawOptions {
+    export interface Options {
       /**
        * The user name for login
        */
@@ -322,26 +322,26 @@ export namespace user {
        */
       password: string
     }
-    export interface Options extends api.FilterRequest<RawOptions> {}
-    export type RawReturns = string
-    export type Returns = api.FilterResponse<RawReturns>
+    export interface O extends api.FilterRequest<Options> {}
+    export type Returns = string
+    export type R = api.FilterResponse<Returns>
   }
   export namespace logoutUser {
-    export type RawReturns = any
-    export type Returns = api.FilterResponse<RawReturns>
+    export type Returns = any
+    export type R = api.FilterResponse<Returns>
   }
   export namespace getUserByName {
-    export interface RawOptions {
+    export interface Options {
       /**
        * The name that needs to be fetched. Use user1 for testing.
        */
       username: string
     }
-    export interface Options extends api.FilterRequest<RawOptions> {}
+    export interface O extends api.FilterRequest<Options> {}
     /**
      * successful operation
      */
-    export interface RawReturns {
+    export interface Returns {
       id: number
       username: string
       firstName: string
@@ -351,13 +351,13 @@ export namespace user {
       phone: string
       userStatus: number
     }
-    export interface Returns extends api.FilterResponse<RawReturns> {}
+    export interface R extends api.FilterResponse<Returns> {}
   }
   export namespace updateUser {
     /**
      * user modal
      */
-    export interface RawOptions {
+    export interface Options {
       id?: number
       /**
        * name that need to be updated
@@ -370,19 +370,19 @@ export namespace user {
       phone?: string
       userStatus?: number
     }
-    export interface Options extends api.FilterRequest<RawOptions> {}
-    export type RawReturns = any
-    export type Returns = api.FilterResponse<RawReturns>
+    export interface O extends api.FilterRequest<Options> {}
+    export type Returns = any
+    export type R = api.FilterResponse<Returns>
   }
   export namespace deleteUser {
-    export interface RawOptions {
+    export interface Options {
       /**
        * The name that needs to be deleted
        */
       username: string
     }
-    export interface Options extends api.FilterRequest<RawOptions> {}
-    export type RawReturns = any
-    export type Returns = api.FilterResponse<RawReturns>
+    export interface O extends api.FilterRequest<Options> {}
+    export type Returns = any
+    export type R = api.FilterResponse<Returns>
   }
 }
