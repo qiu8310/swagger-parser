@@ -1,3 +1,5 @@
+import {FORMAT} from '../config'
+import {Definition} from './Definition'
 import {Type, ObjectType} from './Type'
 
 export namespace Operation {
@@ -36,24 +38,52 @@ export class Operation {
 
   }
 
-  toTS(namespaces: string[]) {
-    let {parameters} = this.opt
+  toTS() {
+    let {parameters, returns} = this.opt
+    let rows: string[] = []
+
+    /**
+     * 处理参数
+     */
     if (parameters.length) {
+      let type = new ObjectType([])
       parameters.forEach(p => {
         if (p.in === 'body') {
           if (Type.isObjectType(p.type)) {
-
-          } else if (Type.isArrayType(p.type)) {
-
+            type.merge(p.type)
           } else {
-
+            type.merge(new ObjectType([new Definition('__rawBody', p.type, true)]))
           }
         } else {
           // 其它情况肯定是 ObjectType
+          if (Type.isObjectType(p.type)) {
+            type.merge(p.type)
+          } else {
+            throw new Error(`内部解析引擎问题！（非 body 类型的参数应该都是 ObjectType）`)
+          }
         }
       })
+      type.toTS('RawOptions', rows)
+      rows.push(`export interface Options extends api.FilterRequest<RawOptions> {}`)
     }
 
+    /**
+     * 处理返回值
+     */
+    if (Type.isNotSimpleType(returns)) {
+      returns.toTS('RawReturns', rows)
+    } else {
+      rows.push(`export type RawReturns = ${returns.toString()}`)
+    }
+
+    // 对象可以继承，非对象不能继承
+    if (Type.isObjectType(returns)) {
+      rows.push(`export interface Returns extends api.FilterResponse<RawReturns> {}`)
+    } else {
+      rows.push(`export type Returns = api.FilterResponse<RawReturns>`)
+    }
+
+    return rows.join(FORMAT.EOL)
   }
 
   /** 忽略指定位置的参数 */

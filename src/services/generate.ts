@@ -2,11 +2,14 @@ import * as fs from 'fs-extra'
 import {series} from 'mora-common/util/async'
 
 import * as path from 'path'
+import {FORMAT} from '../config'
 import {parser2} from '../parser2'
 import {swagger2} from '../schema/swagger2'
 import {Operation} from '../struct/Operation'
 import {eachObject} from '../util'
 import {getConfig, getSwaggerJson, writeFile} from './helper'
+
+const {TAB, EOL} = FORMAT
 
 export async function generate() {
   await series(getConfig(), async c => {
@@ -23,15 +26,20 @@ export async function generate() {
     render(tpl('common.ts.dtpl'), out('..', 'common.ts'), data)
     render(tpl('base.ts.dtpl'), out('base.ts'), data)
 
+    let modal: string[] = [`import {api} from './base'`, '']
     eachObject(tags, (tagName, tagObj) => {
-      // let modal = ''
-      // let api = ''
+      modal.push(`export namespace ${tagName} {`)
 
       eachObject(tagObj, (apiName, operation) => {
-
+        modal.push(`${TAB}export namespace ${apiName} {`)
+        modal.push(prefix(operation.toTS(), TAB.repeat(2)))
+        modal.push(`${TAB}}`)
       })
-      // 生成一个 tag 的 ts 文件
+
+      modal.push(`}`)
     })
+
+    writeFile(out('modal.ts'), modal.join(EOL) + EOL)
   })
 }
 
@@ -81,4 +89,15 @@ function render(fromFile: string, toFile: string, data: any) {
     }
   })
   writeFile(toFile, content)
+}
+
+function prefix(content: string, prefixStr: string) {
+  return content.split(/\r?\n/).map(l => {
+    let s = l.trimRight()
+    if (s) {
+      return prefixStr + s
+    } else {
+      return ''
+    }
+  }).join(EOL)
 }

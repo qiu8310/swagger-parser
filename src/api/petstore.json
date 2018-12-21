@@ -694,6 +694,7 @@
     },
     "User": {
       "type": "object",
+      "description": "user modal",
       "properties": {
         "id": {
           "type": "integer",

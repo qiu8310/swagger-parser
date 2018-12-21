@@ -160,14 +160,17 @@ function parseOperationDesc(operationObject: swagger2.OperationObject) {
 function parse2definition(param: swagger2.SchemaObject | swagger2.RestParameterObject, def: Definition) {
   let desc = new Desc()
   desc.push(param.description)
-  desc.assignTo(def)
 
   if (param.enum) {
     def.enum = param.enum.map(a => JSON.stringify(a))
+    desc.push(`可选值： ${def.enum.join(' | ')}`)
   }
   if (param.hasOwnProperty('default')) {
     def.defaultValue = JSON.stringify(param.default)
+    desc.push(`默认值： ${def.defaultValue}`)
   }
+
+  desc.assignTo(def)
 }
 
 function parseOperationParameters(schema: swagger2.Schema, operationParameters: swagger2.ParameterObject[]): Operation.ParameterObject[] {

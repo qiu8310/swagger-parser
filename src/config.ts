@@ -13,6 +13,7 @@ export const FORMAT = {
  * 将 swagger 中的简单类型转化成 typescript 中可以识别的类型
  */
 export const SIMPLE_TYPE_MAP: {[key: string]: string} = {
+  any: 'any',
   integer: 'number',
   long: 'number',
   float: 'number',

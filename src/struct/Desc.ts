@@ -1,4 +1,4 @@
-import { FORMAT } from '../config'
+import {FORMAT} from '../config'
 
 /**
  * 支持 markdown 的 Desc
@@ -16,7 +16,7 @@ export class Desc {
 
   assignTo<T extends {desc?: string}>(obj: T) {
     let s = this.toString()
-    if (!s.trim()) obj.desc = s
+    if (s.trim()) obj.desc = s
   }
 
   toString() {
