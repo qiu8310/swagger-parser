@@ -12,10 +12,10 @@ const configs = [
     tagNameMap: (name) => {
       return name === 'user'
     },
-    // apiNameMap: (name) => {
-    //   return name.startsWith('create')
-    //   // return name === 'createUser'
-    // },
+    apiNameMap: (name) => {
+      return name.startsWith('getUser')
+      // return name === 'createUser'
+    },
     operationMap: (operation, tagName, apiName) => {
 
     }

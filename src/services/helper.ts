@@ -115,7 +115,7 @@ export function parseApiFile(content: string) {
   content.replace(regexp, (_, id, feature, action, code) => {
     if (!action) action = DEFAULT_ACTION[feature]
     dp.set(`${id}.updated`, false)
-    dp.set(`${id}.${feature}`, {action, code})
+    dp.set(`${id}.${feature}`, {action, code: code.trim()})
     return _
   })
 
@@ -136,8 +136,8 @@ export function groupApi2File(api: ApiFileStruct) {
       rows.push(`//#endregion ${id}__base`)
       if (mock) rows.push('') // 添加一个空行
     }
-    if (mock) { // 删除了的 mock 继续保留，但加上注释
-      rows.push(`//#region ${id}__mock${mock.action && mock.action !== DEFAULT_ACTION.mock ? ` ${mock.action}` : ''}`)
+    if (mock) { // 删除了的 mock 继续保留，但加上注释，并且自动重置成空 action
+      rows.push(`//#region ${id}__mock`)
       rows.push(updated ? mock.code : commentCode(mock.code))
       rows.push(`//#endregion ${id}__mock`)
     }

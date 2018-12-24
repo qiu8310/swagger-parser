@@ -2,8 +2,7 @@ import {FORMAT} from '../config'
 import {Definition} from './Definition'
 import {Type, ObjectType, getDesc} from './Type'
 
-const {EOL} = FORMAT
-
+const {EOL, TAB} = FORMAT
 
 export namespace Operation {
   export interface OperationObject {
@@ -106,7 +105,9 @@ export class Operation {
   }
 
   toFeMock() {
-    return ''
+    const rows: string[] = []
+
+    return [`if (__DEV__) {`, ...rows.map(r => TAB + r), '}'].join(EOL)
   }
 
   /**

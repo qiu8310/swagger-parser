@@ -24,6 +24,7 @@
     "strictPropertyInitialization": true,
   },
   "include": [
-    "src"
+    "src",
+    "types"
   ]
 }
