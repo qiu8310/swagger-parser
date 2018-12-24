@@ -1,4 +1,5 @@
 import {FORMAT} from '../config'
+import {mock} from '../services/mock'
 import {Definition} from './Definition'
 import {Type, ObjectType, getDesc} from './Type'
 
@@ -105,9 +106,17 @@ export class Operation {
   }
 
   toFeMock() {
-    const rows: string[] = []
+    const {returns, id} = this.opt
+    let mockStr = mock(returns)
+    if (!mockStr) return ''
 
-    return [`if (__DEV__) {`, ...rows.map(r => TAB + r), '}'].join(EOL)
+    mockStr = mockStr.replace(/\r?\n/g, EOL + TAB) // 换行后面加个 TAB
+    mockStr = `${id}.mock('自动生成', () => {${EOL}${TAB}return ${mockStr}${EOL}})`
+    return [
+      `if (__DEV__) {`,
+      ...mockStr.split(/\r?\n/).map(r => TAB + r),
+      '}'
+    ].join(EOL)
   }
 
   /**

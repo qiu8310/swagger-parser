@@ -14,15 +14,17 @@ export const getUserByName = api<getUserByName.O, getUserByName.R>(s + 'getUserB
 
 //#region getUserByName__mock
 if (__DEV__) {
-  getUserByName.mock('自动生成', {
-    id: 1,
-    email: '',
-    firstName: '',
-    lastName: '',
-    password: '',
-    phone: '',
-    userStatus: 1,
-    username: '',
+  getUserByName.mock('自动生成', () => {
+    return {
+      id: 1,
+      email: '',
+      firstName: '',
+      lastName: '',
+      password: '',
+      phone: '',
+      userStatus: 1,
+      username: '',
+    }
   })
 }
 //#endregion getUserByName__mock
