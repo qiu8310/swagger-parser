@@ -2,7 +2,7 @@ import {FORMAT} from '../config'
 import {Definition} from './Definition'
 import {Type, ObjectType, getDesc} from './Type'
 
-const {EOL, TAB} = FORMAT
+const {EOL} = FORMAT
 
 
 export namespace Operation {
@@ -66,17 +66,21 @@ export class Operation {
     return type
   }
 
-  toNodeApi() {
+  toNodeBase() {
 
   }
 
-  toFoeApi(config: {baseMethod?: string}) {
+  toNodeMock() {
+
+  }
+
+  toFeBase(config: {baseMethod?: string}) {
     const {id, tag, parameters, desc, method, path} = this.opt
     const hasOptions = parameters.length
 
     // 获取配置
     const settingRows = [`path: '${path.replace(/{(\w+)}/g, ':$1')}'`]
-    if (method !== config.baseMethod) settingRows.push(`path: '${method}'`)
+    if (method !== config.baseMethod) settingRows.push(`method: '${method}'`)
     if (parameters.find(p => p.in === 'formData')) settingRows.push(`http: {headers: {'Content-Type': 'application/x-www-form-urlencoded'}}`)
     parameters.forEach(p => {
       if (Type.isObjectType(p.type)) {
@@ -89,9 +93,9 @@ export class Operation {
     const setting = settingRows.join(', ')
 
     // api 调用
-    const apiRows = [`export namespace ${id} {`]
-    if (hasOptions) apiRows.push(`${TAB}export type O = ${tag}.${id}.O`)
-    apiRows.push(`${TAB}export type R = ${tag}.${id}.R`, `}`, ...getDesc(desc))
+    let opt = hasOptions ? ` export type O = ${tag}.${id}.O;` : ''
+    let ns = `export namespace ${id} {${opt} export type R = ${tag}.${id}.R }`
+    const apiRows = [ns, ...getDesc(desc)]
     if (hasOptions) {
       apiRows.push(`export const ${id} = api<${id}.O, ${id}.R>(s + '${id}', {${setting}})`)
     } else {
@@ -99,6 +103,10 @@ export class Operation {
     }
 
     return apiRows.join(EOL)
+  }
+
+  toFeMock() {
+    return ''
   }
 
   /**

@@ -1,5 +1,6 @@
 import * as fs from 'fs-extra'
 import {series} from 'mora-common/util/async'
+import {capCamelCase} from 'mora-common/util/string'
 
 import * as path from 'path'
 import {FORMAT} from '../config'
@@ -7,7 +8,7 @@ import {parser2} from '../parser2'
 import {swagger2} from '../schema/swagger2'
 import {Operation} from '../struct/Operation'
 import {eachObject} from '../util'
-import {getConfig, getSwaggerJson, writeFile} from './helper'
+import {getConfig, getSwaggerJson, writeFile, parseApiFile, getFile, groupApi2File} from './helper'
 
 const {TAB, EOL} = FORMAT
 
@@ -27,19 +28,48 @@ export async function generate() {
     render(tpl('base.ts.dtpl'), out('base.ts'), data)
 
     let modal: string[] = [`import {api} from './base'`, '']
+    let files: string[] = []
     eachObject(tags, (tagName, tagObj) => {
       modal.push(`export namespace ${tagName} {`)
+
+      // 使用用户指定的名称
+      let fileName = capCamelCase('Api ' + tagName)
+      if (c.fileNameMap) {
+        let tempFileName = c.fileNameMap(fileName)
+        if (!tempFileName) return
+        if (tempFileName && typeof tempFileName === 'string') fileName = tempFileName
+      }
+      let fullFileName = out(fileName + '.ts')
+
+      // 如果存在旧文件，则解析旧文件结构
+      const {api, dp} = parseApiFile(getFile(fullFileName))
 
       eachObject(tagObj, (apiName, operation) => {
         modal.push(`${TAB}export namespace ${apiName} {`)
         modal.push(prefix(operation.toModal(), TAB.repeat(2)))
-        console.log(operation.toFoeApi({...data}))
+
+        let ref = api[apiName]
+        if (!ref || (!ref.base || ref.base.action === 'refresh')) dp.set(`${apiName}.base.code`, operation.toFeBase({...data}))
+        if (!ref || (!ref.mock || ref.mock.action === 'refresh')) dp.set(`${apiName}.base.mock`, operation.toFeMock())
+        dp.set(`${apiName}.updated`, true)
+
         modal.push(`${TAB}}`)
       })
+
+      // 生成文件
+      let s = `import {api} from './base'${EOL}import {${tagName}} from './modal'${EOL}${EOL}const s = '${fileName}'${EOL}${EOL}`
+      writeFile(fullFileName, s + groupApi2File(api))
+      files.push(fileName + '.ts')
 
       modal.push(`}`)
     })
 
+    // 将其它的 Api 开头的文件删除了
+    fs.readdirSync(c.outputDir).forEach(n => {
+      if (n.startsWith('Api') && !files.includes(n)) fs.unlinkSync(path.join(c.outputDir, n))
+    })
+
+    // 生成 modal
     writeFile(out('modal.ts'), modal.join(EOL) + EOL)
   })
 }

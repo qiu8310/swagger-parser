@@ -1,6 +1,7 @@
 /**!
  * 对 swagger2.0 的解析
  */
+import {camelCase} from 'mora-common/util/string'
 import * as DotProp from 'mora-scripts/libs/lang/DotProp'
 
 import {swagger2} from './schema/swagger2'
@@ -73,6 +74,8 @@ export namespace parser2 {
 
 export function parser2(schema: swagger2.Schema, options: parser2.Options = {}) {
   const tags: parser2.Returns.TagsObject = {}
+  // 含有默认值的配置
+  const {normalizeName = true} = options
 
   // 遍历所有 path
   eachObject(schema.paths, (pathKey, pathObj) => {
@@ -98,19 +101,21 @@ export function parser2(schema: swagger2.Schema, options: parser2.Options = {}) 
       operationTags.forEach(tagName => {
         let apiName = operationObject.operationId
 
-        if (options.normalizeName) tagName = normalizeTagName(tagName)
+        if (normalizeName) tagName = normalizeTagName(tagName)
         if (options.tagNameMap) {
           let newname = options.tagNameMap(tagName)
           if (!newname) return
           if (typeof newname === 'string') tagName = newname
         }
+        tagName = camelCase(tagName)
 
-        if (options.normalizeName) apiName = normalizeApiName(apiName)
+        if (normalizeName) apiName = normalizeApiName(apiName)
         if (options.apiNameMap) {
           let newname = options.apiNameMap(apiName)
           if (!newname) return
           if (typeof newname === 'string') apiName = newname
         }
+        apiName = camelCase(apiName)
 
         let operations = getObjectValue(tags, tagName)
         let operation = {} as Operation.OperationObject
@@ -278,6 +283,3 @@ function normalizeTagName(name: string) {
 function normalizeApiName(name: string) {
   return name.replace(/Using[A-Z]+$/, '')
 }
-
-// parser2(require('../example-json/petstore.json'))
-// parser2(require('../example-json/credit.json'), {normalizeName: true, tagNameMap: name => name === 'order'})

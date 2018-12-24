@@ -9,9 +9,9 @@ const configs = [
     // json: "http://192.168.35.74:9560/v2/api-docs",
     json: 'src/api/petstore.json',
     outputDir: "src/api/petstore",
-    // tagNameMap: (name) => {
-    //   return name === 'user'
-    // },
+    tagNameMap: (name) => {
+      return name === 'user'
+    },
     // apiNameMap: (name) => {
     //   return name.startsWith('create')
     //   // return name === 'createUser'
