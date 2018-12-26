@@ -3,8 +3,7 @@ import {store} from './modal'
 
 const s = 'ApiStore.'
 
-//#region getInventory
-//#region getInventory__base
+//#region getInventory__base auto
 export namespace getInventory { export type R = store.getInventory.R }
 /**
  * Returns pet inventories by status
@@ -13,42 +12,38 @@ export namespace getInventory { export type R = store.getInventory.R }
  */
 export const getInventory = api<getInventory.R>(s + 'getInventory', {path: '/store/inventory', method: 'GET'})
 //#endregion getInventory__base
-
-//#region getInventory__mock
+//#region getInventory__mock auto
 if (__DEV__) {
   getInventory.mock('自动生成', () => {
     return {}
   })
 }
 //#endregion getInventory__mock
-//#endregion getInventory
 
-//#region placeOrder
-//#region placeOrder__base
+
+//#region placeOrder__base auto
 export namespace placeOrder { export type O = store.placeOrder.O; export type R = store.placeOrder.R }
 /** Place an order for a pet */
 export const placeOrder = api<placeOrder.O, placeOrder.R>(s + 'placeOrder', {path: '/store/order', body: 'id&petId&quantity&shipDate&status&complete'})
 //#endregion placeOrder__base
-
-//#region placeOrder__mock
+//#region placeOrder__mock auto
 if (__DEV__) {
   placeOrder.mock('自动生成', () => {
     return {
-      id: 8,
-      petId: 9,
-      quantity: 703,
-      shipDate: 'K4LwuLPyuSDyFMx',
+      id: 7,
+      petId: 8,
+      quantity: 779,
+      shipDate: 'nhYW',
       /** Order Status */
-      status: 'nRRgeyI0SRjFaKFQj8a5',
-      complete: false,
+      status: 'dnspTw5fgjSwvu',
+      complete: true,
     }
   })
 }
 //#endregion placeOrder__mock
-//#endregion placeOrder
 
-//#region getOrderById
-//#region getOrderById__base
+
+//#region getOrderById__base auto
 export namespace getOrderById { export type O = store.getOrderById.O; export type R = store.getOrderById.R }
 /**
  * Find purchase order by ID
@@ -57,26 +52,24 @@ export namespace getOrderById { export type O = store.getOrderById.O; export typ
  */
 export const getOrderById = api<getOrderById.O, getOrderById.R>(s + 'getOrderById', {path: '/store/order/:orderId', method: 'GET'})
 //#endregion getOrderById__base
-
-//#region getOrderById__mock
+//#region getOrderById__mock auto
 if (__DEV__) {
   getOrderById.mock('自动生成', () => {
     return {
-      id: 10,
-      petId: 11,
-      quantity: 371,
-      shipDate: '5hZe9NL8Qb',
+      id: 9,
+      petId: 10,
+      quantity: 198,
+      shipDate: 'KENWupD7bDMPVtwv',
       /** Order Status */
-      status: 'S3RRIYiGsWTGS',
+      status: 'n8CiYy8',
       complete: false,
     }
   })
 }
 //#endregion getOrderById__mock
-//#endregion getOrderById
 
-//#region deleteOrder
-//#region deleteOrder__base
+
+//#region deleteOrder__base auto
 export namespace deleteOrder { export type O = store.deleteOrder.O; export type R = store.deleteOrder.R }
 /**
  * Delete purchase order by ID
@@ -85,12 +78,11 @@ export namespace deleteOrder { export type O = store.deleteOrder.O; export type 
  */
 export const deleteOrder = api<deleteOrder.O, deleteOrder.R>(s + 'deleteOrder', {path: '/store/order/:orderId', method: 'DELETE'})
 //#endregion deleteOrder__base
-
-//#region deleteOrder__mock
+//#region deleteOrder__mock auto
 if (__DEV__) {
   deleteOrder.mock('自动生成', () => {
     return {}
   })
 }
 //#endregion deleteOrder__mock
-//#endregion deleteOrder
+

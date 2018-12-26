@@ -50,8 +50,8 @@ export async function generate() {
         modal.push(prefix(operation.toModal(), TAB.repeat(2)))
 
         let ref = api[apiName]
-        if (!ref || !ref.base || ref.base.action === 'refresh') dp.set(`${apiName}.base.code`, operation.toFeBase({...data}))
-        if (!ref || !ref.mock || ref.mock.action === 'refresh' || c.alwaysOverwriteMock) dp.set(`${apiName}.mock.code`, operation.toFeMock())
+        if (!ref || !ref.base || ref.base.action === 'auto') dp.set(`${apiName}.base.code`, operation.toFeBase({...data}))
+        if (!ref || !ref.mock || ref.mock.action === 'auto') dp.set(`${apiName}.mock.code`, operation.toFeMock())
         dp.set(`${apiName}.updated`, true)
 
         modal.push(`${TAB}}`)

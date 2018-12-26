@@ -19,13 +19,11 @@ const configs = [
     operationMap: (operation, tagName, apiName) => {
 
     },
-    alwaysOverwriteMock: true
   },
   // {
   //   type: 'fe',
   //   json: 'example-json/daybreak.json',
   //   outputDir: "src/api/daybreak",
-  //   alwaysOverwriteMock: true
   // },
   // {
   //   type: 'fe',
@@ -38,7 +36,6 @@ const configs = [
   //     return name.startsWith('queryPlan')
   //     // return name === 'createUser'
   //   },
-  //   alwaysOverwriteMock: true
   // },
 ]
 

@@ -18,13 +18,6 @@ export interface Config extends parser2.Options {
   /** 生成的 api 的名称，默认使用 Api[TagName] 的结构 */
   fileNameMap?: (oldName: string) => string | boolean
 
-  /**
-   * 默认不生成过 mock 数据之后就不会覆盖原有的，如果指定此值为 true 则每次都会重新生成 mock
-   *
-   * **注意： 会覆盖掉你自己手写的 mock 数据**
-   */
-  alwaysOverwriteMock?: boolean
-
   // /**
   //  * 示例 mock 数据
   //  *
@@ -122,21 +115,21 @@ export function getFile(filepath: string) {
 
 export interface ApiFileStruct {
   [key: string]: {
-    base?: {action: 'refresh' | 'reserve', code: string}
-    mock?: {action: 'refresh' | 'reserve', code: string}
+    base?: {action: 'auto' | 'manual', code: string}
+    mock?: {action: 'auto' | 'manual', code: string}
     updated: boolean
   }
 }
 
-const DEFAULT_ACTION: any = {base: 'refresh', mock: 'reserve'}
+const DEFAULT_ACTION: any = {base: 'auto', mock: 'auto'}
 /**
  * 解析已经存在的 api 文件的内容
  * @param content
- * //#region bindBankCard__base/mock  refresh/reserve (base 默认 refresh，mock 默认会 reserve)
+ * //#region bindBankCard__base/mock  auto/manual (base 默认 refresh，mock 默认会 reserve)
  * //#endregion bindBankCard__base/mock
  */
 export function parseApiFile(content: string) {
-  const regexp = /^\/\/\s*#region\s+([a-zA-Z0-9]+)__(base|mock)(?:\s+(refresh|reserve))?([\s\S]*?)\/\/\s*#endregion\s+\1__\2/mg
+  const regexp = /^\/\/\s*#region\s+([a-zA-Z0-9]+)__(base|mock)(?:\s+(auto|manual))?([\s\S]*?)\/\/\s*#endregion\s+\1__\2/mg
   const api: ApiFileStruct = {}
   const dp = new DotProp(api)
 
@@ -155,21 +148,22 @@ export function groupApi2File(api: ApiFileStruct) {
   Object.keys(api).forEach(id => {
     let {base, mock, updated} = api[id]
 
-    let hasCode = base && updated || mock
-    if (hasCode) rows.push(`//#region ${id}`)
+    // let hasCode = base && updated || mock
+    // if (hasCode) rows.push(`//#region ${id}`)
 
     if (base && updated) { // 删除了的 base 不保留
-      rows.push(`//#region ${id}__base${base.action && base.action !== DEFAULT_ACTION.base ? ` ${base.action}` : ''}`)
+      rows.push(`//#region ${id}__base ${base.action ? base.action : DEFAULT_ACTION.base}`)
       rows.push(base.code)
       rows.push(`//#endregion ${id}__base`)
-      if (mock) rows.push('') // 添加一个空行
+      // if (mock) rows.push('') // 添加一个空行
     }
     if (mock) { // 删除了的 mock 继续保留，但加上注释，并且自动重置成空 action
-      rows.push(`//#region ${id}__mock`)
+      rows.push(`//#region ${id}__mock ${mock.action ? mock.action : DEFAULT_ACTION.mock}`)
       rows.push(updated ? mock.code : commentCode(mock.code))
       rows.push(`//#endregion ${id}__mock`)
     }
-    if (hasCode) rows.push(`//#endregion ${id}`, '')
+    // if (hasCode) rows.push(`//#endregion ${id}`)
+    rows.push('', '')
   })
   return rows.join(FORMAT.EOL)
 }
