@@ -28,16 +28,14 @@ export class Type {
    */
   constructor(public name: string) {
     if (!name) throw new Error(`不支持空 Type 的创建`)
+    if (name in SIMPLE_TYPE_MAP) {
+      this.name =  SIMPLE_TYPE_MAP[name.toLowerCase()]
+    }
+    if (!this.name) throw new Error(`不支持的类型标识 "${name}"`)
   }
 
   toString() {
-    let type = this.name.toLowerCase()
-    if (type in SIMPLE_TYPE_MAP) return SIMPLE_TYPE_MAP[type]
-
-    let arr = type.split(/\s*|\s*/).map(t => SIMPLE_TYPE_MAP[t])
-    if (arr.some(t => !t)) throw new Error(`无法识别的类型： "${type}"`)
-
-    return arr.join(' | ')
+    return this.name
   }
 }
 

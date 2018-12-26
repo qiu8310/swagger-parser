@@ -50,14 +50,14 @@ export async function generate() {
 
         let ref = api[apiName]
         if (!ref || !ref.base || ref.base.action === 'refresh') dp.set(`${apiName}.base.code`, operation.toFeBase({...data}))
-        if (!ref || !ref.mock || ref.mock.action === 'refresh') dp.set(`${apiName}.mock.code`, operation.toFeMock())
+        if (!ref || !ref.mock || ref.mock.action === 'refresh' || c.alwaysOverwriteMock) dp.set(`${apiName}.mock.code`, operation.toFeMock())
         dp.set(`${apiName}.updated`, true)
 
         modal.push(`${TAB}}`)
       })
 
       // 生成文件
-      let s = `import {api} from './base'${EOL}import {${tagName}} from './modal'${EOL}${EOL}const s = '${fileName}'${EOL}${EOL}`
+      let s = `import {api} from './base'${EOL}import {${tagName}} from './modal'${EOL}${EOL}const s = '${fileName}.'${EOL}${EOL}`
       writeFile(fullFileName, s + groupApi2File(api))
       files.push(fileName + '.ts')
 

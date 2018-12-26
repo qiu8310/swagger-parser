@@ -17,6 +17,13 @@ export interface Config extends parser2.Options {
 
   /** 生成的 api 的名称，默认使用 Api[TagName] 的结构 */
   fileNameMap?: (oldName: string) => string | boolean
+
+  /**
+   * 默认不生成过 mock 数据之后就不会覆盖原有的，如果指定此值为 true 则每次都会重新生成 mock
+   *
+   * **注意： 会覆盖掉你自己手写的 mock 数据**
+   */
+  alwaysOverwriteMock?: boolean
 }
 
 export function lookupRootDir() {
