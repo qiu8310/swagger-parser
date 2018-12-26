@@ -129,7 +129,7 @@ const DEFAULT_ACTION: any = {base: 'auto', mock: 'auto'}
  * //#endregion bindBankCard__base/mock
  */
 export function parseApiFile(content: string) {
-  const regexp = /^\/\/\s*#region\s+([a-zA-Z0-9]+)__(base|mock)(?:\s+(auto|manual))?([\s\S]*?)\/\/\s*#endregion\s+\1__\2/mg
+  const regexp = /^\/\/\s*#region\s+([a-zA-Z0-9]+)--(base|mock)(?:\s+(auto|manual))?([\s\S]*?)\/\/\s*#endregion\s+\1__\2/mg
   const api: ApiFileStruct = {}
   const dp = new DotProp(api)
 
@@ -152,15 +152,15 @@ export function groupApi2File(api: ApiFileStruct) {
     // if (hasCode) rows.push(`//#region ${id}`)
 
     if (base && updated) { // 删除了的 base 不保留
-      rows.push(`//#region ${id}__base ${base.action ? base.action : DEFAULT_ACTION.base}`)
+      rows.push(`//#region ${id}--base ${base.action ? base.action : DEFAULT_ACTION.base}`)
       rows.push(base.code)
-      rows.push(`//#endregion ${id}__base`)
+      rows.push(`//#endregion ${id}--base`)
       // if (mock) rows.push('') // 添加一个空行
     }
     if (mock) { // 删除了的 mock 继续保留，但加上注释，并且自动重置成空 action
-      rows.push(`//#region ${id}__mock ${mock.action ? mock.action : DEFAULT_ACTION.mock}`)
+      rows.push(`//#region ${id}--mock ${mock.action ? mock.action : DEFAULT_ACTION.mock}`)
       rows.push(updated ? mock.code : commentCode(mock.code))
-      rows.push(`//#endregion ${id}__mock`)
+      rows.push(`//#endregion ${id}--mock`)
     }
     // if (hasCode) rows.push(`//#endregion ${id}`)
     rows.push('', '')
