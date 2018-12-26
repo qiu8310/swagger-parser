@@ -1,8 +1,5 @@
 import {Application, RequestConfig, middleware} from '@hujiang/foe-api'
 
-const __DEV__ = true
-const __PROJECT__ = ''
-
 /**
  * 默认配置，可以在子 base.ts 文件中修改
  */

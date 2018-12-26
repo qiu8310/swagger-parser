@@ -12,15 +12,14 @@ export namespace pet {
       name?: string
     }
     export type OptionsPropTags = OptionsPropTagsSubItem[]
-    /**
-     * Pet object that needs to be added to the store
-     */
+    /** Pet object that needs to be added to the store */
     export interface Options {
       id?: number
       category?: OptionsPropCategory
       name: string
       photoUrls: OptionsPropPhotoUrls
       tags?: OptionsPropTags
+      /** pet status in the store */
       status?: string
     }
     export interface O extends api.FilterRequest<Options> {}
@@ -38,15 +37,14 @@ export namespace pet {
       name?: string
     }
     export type OptionsPropTags = OptionsPropTagsSubItem[]
-    /**
-     * Pet object that needs to be added to the store
-     */
+    /** Pet object that needs to be added to the store */
     export interface Options {
       id?: number
       category?: OptionsPropCategory
       name: string
       photoUrls: OptionsPropPhotoUrls
       tags?: OptionsPropTags
+      /** pet status in the store */
       status?: string
     }
     export interface O extends api.FilterRequest<Options> {}
@@ -55,9 +53,7 @@ export namespace pet {
   }
   export namespace findPetsByStatus {
     export interface Options {
-      /**
-       * Status values that need to be considered for filter
-       */
+      /** Status values that need to be considered for filter */
       status: any[]
     }
     export interface O extends api.FilterRequest<Options> {}
@@ -77,19 +73,16 @@ export namespace pet {
       name: string
       photoUrls: ReturnsSubItemPropPhotoUrls
       tags?: ReturnsSubItemPropTags
+      /** pet status in the store */
       status?: string
     }
-    /**
-     * successful operation
-     */
+    /** successful operation */
     export type Returns = ReturnsSubItem[]
     export type R = api.FilterResponse<Returns>
   }
   export namespace getPetById {
     export interface Options {
-      /**
-       * ID of pet to return
-       */
+      /** ID of pet to return */
       petId: number
     }
     export interface O extends api.FilterRequest<Options> {}
@@ -103,32 +96,25 @@ export namespace pet {
       name: string
     }
     export type ReturnsPropTags = ReturnsPropTagsSubItem[]
-    /**
-     * successful operation
-     */
+    /** successful operation */
     export interface Returns {
       id?: number
       category?: ReturnsPropCategory
       name: string
       photoUrls: ReturnsPropPhotoUrls
       tags?: ReturnsPropTags
+      /** pet status in the store */
       status?: string
     }
     export interface R extends api.FilterResponse<Returns> {}
   }
   export namespace updatePetWithForm {
     export interface Options {
-      /**
-       * ID of pet that needs to be updated
-       */
+      /** ID of pet that needs to be updated */
       petId: number
-      /**
-       * Updated name of the pet
-       */
+      /** Updated name of the pet */
       name?: string
-      /**
-       * Updated status of the pet
-       */
+      /** Updated status of the pet */
       status?: string
     }
     export interface O extends api.FilterRequest<Options> {}
@@ -138,9 +124,7 @@ export namespace pet {
   export namespace deletePet {
     export interface Options {
       api_key?: string
-      /**
-       * Pet id to delete
-       */
+      /** Pet id to delete */
       petId: number
     }
     export interface O extends api.FilterRequest<Options> {}
@@ -149,23 +133,15 @@ export namespace pet {
   }
   export namespace uploadFile {
     export interface Options {
-      /**
-       * ID of pet to update
-       */
+      /** ID of pet to update */
       petId: number
-      /**
-       * Additional data to pass to server
-       */
+      /** Additional data to pass to server */
       additionalMetadata?: string
-      /**
-       * file to upload
-       */
+      /** file to upload */
       file?: any
     }
     export interface O extends api.FilterRequest<Options> {}
-    /**
-     * successful operation
-     */
+    /** successful operation */
     export interface Returns {
       code: number
       type: string
@@ -176,34 +152,30 @@ export namespace pet {
 }
 export namespace store {
   export namespace getInventory {
-    /**
-     * successful operation
-     */
+    /** successful operation */
     export interface Returns {
     }
     export interface R extends api.FilterResponse<Returns> {}
   }
   export namespace placeOrder {
-    /**
-     * Order modal
-     */
+    /** Order modal */
     export interface Options {
       id?: number
       petId?: number
       quantity?: number
       shipDate?: string
+      /** Order Status */
       status?: string
       complete?: boolean
     }
     export interface O extends api.FilterRequest<Options> {}
-    /**
-     * successful operation
-     */
+    /** successful operation */
     export interface Returns {
       id: number
       petId: number
       quantity: number
       shipDate: string
+      /** Order Status */
       status: string
       complete: boolean
     }
@@ -211,20 +183,17 @@ export namespace store {
   }
   export namespace getOrderById {
     export interface Options {
-      /**
-       * ID of pet that needs to be fetched
-       */
+      /** ID of pet that needs to be fetched */
       orderId: number
     }
     export interface O extends api.FilterRequest<Options> {}
-    /**
-     * successful operation
-     */
+    /** successful operation */
     export interface Returns {
       id: number
       petId: number
       quantity: number
       shipDate: string
+      /** Order Status */
       status: string
       complete: boolean
     }
@@ -232,9 +201,7 @@ export namespace store {
   }
   export namespace deleteOrder {
     export interface Options {
-      /**
-       * ID of the order that needs to be deleted
-       */
+      /** ID of the order that needs to be deleted */
       orderId: number
     }
     export interface O extends api.FilterRequest<Options> {}
@@ -244,9 +211,7 @@ export namespace store {
 }
 export namespace user {
   export namespace createUser {
-    /**
-     * user modal
-     */
+    /** user modal */
     export interface Options {
       id?: number
       username?: string
@@ -255,6 +220,7 @@ export namespace user {
       email?: string
       password?: string
       phone?: string
+      /** User Status */
       userStatus?: number
     }
     export interface O extends api.FilterRequest<Options> {}
@@ -262,9 +228,7 @@ export namespace user {
     export type R = api.FilterResponse<Returns>
   }
   export namespace createUsersWithArrayInput {
-    /**
-     * user modal
-     */
+    /** user modal */
     export interface OptionsPropRawBodySubItem {
       id?: number
       username?: string
@@ -273,11 +237,10 @@ export namespace user {
       email?: string
       password?: string
       phone?: string
+      /** User Status */
       userStatus?: number
     }
-    /**
-     * List of user object
-     */
+    /** List of user object */
     export type OptionsPropRawBody = OptionsPropRawBodySubItem[]
     export interface Options {
       __rawBody: OptionsPropRawBody
@@ -287,9 +250,7 @@ export namespace user {
     export type R = api.FilterResponse<Returns>
   }
   export namespace createUsersWithListInput {
-    /**
-     * user modal
-     */
+    /** user modal */
     export interface OptionsPropRawBodySubItem {
       id?: number
       username?: string
@@ -298,11 +259,10 @@ export namespace user {
       email?: string
       password?: string
       phone?: string
+      /** User Status */
       userStatus?: number
     }
-    /**
-     * List of user object
-     */
+    /** List of user object */
     export type OptionsPropRawBody = OptionsPropRawBodySubItem[]
     export interface Options {
       __rawBody: OptionsPropRawBody
@@ -313,13 +273,9 @@ export namespace user {
   }
   export namespace loginUser {
     export interface Options {
-      /**
-       * The user name for login
-       */
+      /** The user name for login */
       username: string
-      /**
-       * The password for login in clear text
-       */
+      /** The password for login in clear text */
       password: string
     }
     export interface O extends api.FilterRequest<Options> {}
@@ -332,15 +288,11 @@ export namespace user {
   }
   export namespace getUserByName {
     export interface Options {
-      /**
-       * The name that needs to be fetched. Use user1 for testing.
-       */
+      /** The name that needs to be fetched. Use user1 for testing. */
       username: string
     }
     export interface O extends api.FilterRequest<Options> {}
-    /**
-     * successful operation
-     */
+    /** successful operation */
     export interface Returns {
       id: number
       username: string
@@ -349,25 +301,23 @@ export namespace user {
       email: string
       password: string
       phone: string
+      /** User Status */
       userStatus: number
     }
     export interface R extends api.FilterResponse<Returns> {}
   }
   export namespace updateUser {
-    /**
-     * user modal
-     */
+    /** user modal */
     export interface Options {
       id?: number
-      /**
-       * name that need to be updated
-       */
+      /** name that need to be updated */
       username: string
       firstName?: string
       lastName?: string
       email?: string
       password?: string
       phone?: string
+      /** User Status */
       userStatus?: number
     }
     export interface O extends api.FilterRequest<Options> {}
@@ -376,9 +326,7 @@ export namespace user {
   }
   export namespace deleteUser {
     export interface Options {
-      /**
-       * The name that needs to be deleted
-       */
+      /** The name that needs to be deleted */
       username: string
     }
     export interface O extends api.FilterRequest<Options> {}

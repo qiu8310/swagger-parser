@@ -8,11 +8,12 @@ import {parser2} from '../parser2'
 import {swagger2} from '../schema/swagger2'
 import {Operation} from '../struct/Operation'
 import {eachObject} from '../util'
-import {getConfig, getSwaggerJson, writeFile, parseApiFile, getFile, groupApi2File} from './helper'
+import {getConfig, lookupRootDir, getSwaggerJson, writeFile, parseApiFile, getFile, groupApi2File} from './helper'
 
 const {TAB, EOL} = FORMAT
 
 export async function generate() {
+  const root = lookupRootDir()
   await series(getConfig(), async c => {
     const json = await getSwaggerJson<swagger2.Schema>(c)
     if (!/^2\./.test(json.swagger)) throw new Error(`不支持 swagger 版本：${json.swagger}`)
@@ -20,11 +21,11 @@ export async function generate() {
     const {type = 'fe'} = c
     const tags = parser2(json, c)
 
-    const tpl = (...name: string[]) => path.resolve(__dirname, 'template', type, ...name)
+    const tpl = (...name: string[]) => path.join(root, 'template', type, ...name)
     const out = (...name: string[]) => path.resolve(c.outputDir, ...name)
     const data = getRenderData(json, tags)
 
-    render(tpl('common.ts.dtpl'), out('..', 'common.ts'), data)
+    render(tpl('common-fe.ts.dtpl'), out('..', 'common-fe.ts'), data)
     render(tpl('base.ts.dtpl'), out('base.ts'), data)
 
     let modal: string[] = [`import {api} from './base'`, '']

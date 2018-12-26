@@ -236,6 +236,7 @@ function getSchemaObjectType(schema: swagger2.Schema, obj: swagger2.SchemaObject
     rtn = new ObjectType(defs)
     eachObject(mergedObj.properties || {}, (propKey, propValue) => {
       const def = new Definition(propKey, getSchemaObjectType(schema, propValue, defaultRequired))
+      if (propValue.description) def.desc = propValue.description
       def.required = defaultRequired && !required.length ? defaultRequired : required.includes(propKey)
       defs.push(def)
     })

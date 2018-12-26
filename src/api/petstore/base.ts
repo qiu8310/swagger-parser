@@ -1,5 +1,5 @@
 import {Application, RequestConfig} from '@hujiang/foe-api'
-import {createApplication} from '../common'
+import {createApplication} from '../common-fe'
 
 export const app = createApplication({
   basePath: '/v2',
@@ -7,16 +7,6 @@ export const app = createApplication({
 })
 
 export namespace api {
-  /**
-   * 非 PlainObject 的表单(如提交文件)无法使用 interface 来提交
-   *
-   * 这时可以使用 {__rawBody: any} 的形式提交任意数据
-   *
-   * @example
-   * export const api<RawBody, {status: number}>({path: '/file/upload'})
-   */
-  export interface RawBody {__rawBody: any}
-
   /**
    * 由于 api 接口是由 swagger 生成的，而上面的返回值可能会包一些统一的结构可以在外部提供
    *

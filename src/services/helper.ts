@@ -24,6 +24,27 @@ export interface Config extends parser2.Options {
    * **注意： 会覆盖掉你自己手写的 mock 数据**
    */
   alwaysOverwriteMock?: boolean
+
+  // /**
+  //  * 示例 mock 数据
+  //  *
+  //  * @example
+  //  *
+  //  * {
+  //  *   'user.name': '中文名',
+  //  *   'users[].name': '数组中的中文名'
+  //  *   'ccv2': '123'
+  //  * }
+  //  */
+  // exampleMocks?: {[key: string]: string | number | boolean}
+
+  // /**
+  //  * mock 配置
+  //  */
+  // mockConfig?: {
+  //   // 时间戳的长度（js 中是 10 位， java 中是 13 位）
+  //   timestampLength?: 10 | 13
+  // }
 }
 
 export function lookupRootDir() {

@@ -9,7 +9,7 @@
     "sourceMap": false,
     "rootDir": "src",
     "declaration": true,
-    // "resolveJsonModule": true,
+    "resolveJsonModule": true,
     "removeComments": false,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": false,

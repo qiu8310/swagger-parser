@@ -1,20 +1,20 @@
-import {sample} from 'mora-common/util/array'
-import {sum} from 'mora-common/util/math'
-import {snakeCase} from 'mora-common/util/string'
-
+import {snakeCase, capCamelCase} from 'mora-common/util/string'
 import {FORMAT} from '../config'
-import {Type} from '../struct/Type'
+import {Type, getDesc} from '../struct/Type'
+import {generateBankNo, generateIdNo} from './inc/faker'
 
 const {EOL, TAB} = FORMAT
 const yod = require('yod-mock')
 
-export function mock(type: Type, key?: string, level = 0): string {
+// @TODO: 支持加一些配置
+export function mock(type: Type, key?: string, prefixes: string[] = [], level = 0): string {
   let prefix = TAB.repeat(level)
   if (Type.isArrayType(type)) {
     let res: string[] = []
     res.push('[')
-    new Array(yod('@Int(1, 4)')).fill(0)
-      .map(() => mock(type.type, key, level + 1))
+    // 生成 1-2 项数据
+    new Array(yod('@Int(1, 2)')).fill(0)
+      .map(() => mock(type.type, key, [...prefixes, '[]'], level + 1))
       .forEach(r => res.push(`${prefix}${TAB}${r},`))
     res.push(`${prefix}]`)
     return res.join(EOL)
@@ -23,7 +23,8 @@ export function mock(type: Type, key?: string, level = 0): string {
     let res: string[] = []
     res.push('{')
     type.definitions.forEach(d => {
-      res.push(`${prefix}${TAB}${d.name}: ${mock(d.type, d.name, level + 1)},`)
+      res.push(...getDesc(d.desc).map(l => prefix + TAB + l))
+      res.push(`${prefix}${TAB}${d.name}: ${mock(d.type, d.name, [...prefixes, d.name], level + 1)},`)
     })
     res.push(`${prefix}}`)
     return res.join(EOL)
@@ -34,20 +35,6 @@ export function mock(type: Type, key?: string, level = 0): string {
   }
 }
 
-// let obj = new ObjectType([
-//   new Definition('uid', new Type('number')),
-//   new Definition('userMobile', new Type('string')),
-//   new Definition('idNo', new Type('string')),
-//   new Definition('bankNo', new Type('string')),
-// ])
-// let arr = new ArrayType(obj)
-// let objArr = new ObjectType([
-//   new Definition('arr', arr)
-// ])
-// console.log(mock(obj))
-// console.log(mock(objArr))
-
-// // number / string / boolean / any / any[]
 function mockBasicWithKey(typeName: string, key?: string, exampleValue?: string | number) {
   if (!key) return mockBasic(typeName)
 
@@ -61,7 +48,11 @@ function mockBasicWithKey(typeName: string, key?: string, exampleValue?: string 
    * @param plural 是否再对比下加 "s" 的版本
    */
   const contain = (keys: string[], plural = true) => keys.some(k => keyParts.includes(k) || (!!plural && keyParts.includes(k + 's')))
-  const equal = (keys: string[]) => keys.some(k => lowerKey === k.toLowerCase())
+  /**
+   * 和 keys 中的某一字段一样，或者以其中的某一字段结尾
+   * @param keys
+   */
+  const equal = (keys: string[]) => keys.some(k => lowerKey === k.toLowerCase() || key.endsWith(capCamelCase(k)))
 
   // 支持多种类型的字段
   if (key.endsWith('Id') || key.length === 3 && key.endsWith('id') || equal(['id'])) {
@@ -78,7 +69,7 @@ function mockBasicWithKey(typeName: string, key?: string, exampleValue?: string 
     if (equal(['idNo', 'idCard'])) return mask(generateIdNo(), exampleStr)
     // 银行卡
     if (equal(['bankNo', 'bankCard', 'bankAccountNo'])) return mask(generateBankNo(), exampleStr)
-    if (equal(['userName', 'realName', 'accountName']) || key.endsWith('UserName')) return yod('@ChineseName')
+    if (equal(['userName', 'realName', 'accountName'])) return yod('@ChineseName')
     if (equal(['firstName'])) return yod('@FirstName')
     if (equal(['lastName'])) return yod('@LastName')
     if (equal(['nickname'])) return yod('@Nickname')
@@ -102,6 +93,9 @@ function mockBasicWithKey(typeName: string, key?: string, exampleValue?: string 
       if (/[a-z]/.test(s)) return yod('@Char("lower")')
       if (/[A-Z]/.test(s)) return yod('@Char("upper")')
       if (/[0-9]/.test(s)) return yod('@Char("number")')
+      // 如果是中文
+      if (/[\u4e00-\u9fa5]/.test(s)) return yod('@CW')
+
       return s
     }).join('')
 
@@ -135,52 +129,4 @@ function mask(str: string, exampleStr: string) {
     }
   }
   return str
-}
-
-function generateIdNo() {
-  let coefficientArray = ['7', '9', '10', '5', '8', '4', '2', '1', '6', '3', '7', '9', '10', '5', '8', '4', '2'] // 加权因子
-  let lastNumberArray = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2'] // 校验码
-  let address = sample(require('./inc/address-code.json')) // 住址
-  let birthday = yod('@Date("YYYYMMDD", -80)')  // '19810101' // 生日
-  let s = Math.floor(Math.random() * 10).toString() + Math.floor(Math.random() * 10).toString() + Math.floor(Math.random() * 10).toString()
-  let array = (address + birthday + s).split('')
-  let total = 0
-  for (let i = 0; i < array.length; i++) {
-      total = total + parseInt(array[i], 10) * parseInt(coefficientArray[i], 10)
-  }
-  let lastNumber = lastNumberArray[total % 11]
-
-  return address + birthday + s + lastNumber
-}
-
-/**
- * @param type 1: 借记卡  4: 信用卡
- */
-function generateBankNo(type = [1, 4]) {
-  const [prefix, , , total] = sample(require('./inc/bank-common.json').filter((it: any[]) => type.includes(it[4])))
-
-  let randomNumCount = total - prefix.length - 1
-  let bankNo = prefix + yod(`@Char('number').repeat(${randomNumCount}).join("")`)
-  bankNo += getBankNoVerificationCode(bankNo)
-
-  return bankNo
-}
-
-/**
- *
- * 校验码为银行卡号最后一位，采用LUHN算法，亦称模10算法。计算方法如下：
- * 第一步：从右边第1个数字开始每隔一位乘以2；
- * 第二步：把在第一步中获得的乘积的各位数字相加，然后再与原号码中未乘2的各位数字相加；
- * 第三步：对于第二步求和值中个位数求10的补数，如果个位数为0则该校验码为0。
- */
-function getBankNoVerificationCode(bankcard: string) {
-  let toArray = (str: string | number) => str.toString().split('').map(i => parseInt(i, 10))
-  let nums = toArray(bankcard).reverse()
-
-  // 偶数和
-  const evenSum = sum(nums.filter((r, i) => i % 2 === 1))
-  // 奇数*2 各个位数和
-  const oddSum = nums.filter((r, i) => i % 2 === 0).map(r => r * 2).reduce((accumulator, currentValue) => accumulator + sum(toArray(currentValue)), 0)
-  const verificationCode = 10 - ((oddSum + evenSum) % 10 || 10)
-  return verificationCode
 }

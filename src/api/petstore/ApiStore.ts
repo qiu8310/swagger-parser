@@ -26,9 +26,7 @@ if (__DEV__) {
 //#region placeOrder
 //#region placeOrder__base
 export namespace placeOrder { export type O = store.placeOrder.O; export type R = store.placeOrder.R }
-/**
- * Place an order for a pet
- */
+/** Place an order for a pet */
 export const placeOrder = api<placeOrder.O, placeOrder.R>(s + 'placeOrder', {path: '/store/order', body: 'id&petId&quantity&shipDate&status&complete'})
 //#endregion placeOrder__base
 
@@ -36,12 +34,13 @@ export const placeOrder = api<placeOrder.O, placeOrder.R>(s + 'placeOrder', {pat
 if (__DEV__) {
   placeOrder.mock('自动生成', () => {
     return {
-      id: 11,
-      petId: 12,
-      quantity: 987,
-      shipDate: 'Fk5OmfNFluL8',
-      status: 'l3y',
-      complete: true,
+      id: 8,
+      petId: 9,
+      quantity: 703,
+      shipDate: 'K4LwuLPyuSDyFMx',
+      /** Order Status */
+      status: 'nRRgeyI0SRjFaKFQj8a5',
+      complete: false,
     }
   })
 }
@@ -63,12 +62,13 @@ export const getOrderById = api<getOrderById.O, getOrderById.R>(s + 'getOrderByI
 if (__DEV__) {
   getOrderById.mock('自动生成', () => {
     return {
-      id: 13,
-      petId: 14,
-      quantity: 600,
-      shipDate: 'CMgsDA8P',
-      status: '0LNUOGrz3EV4gnnWL',
-      complete: true,
+      id: 10,
+      petId: 11,
+      quantity: 371,
+      shipDate: '5hZe9NL8Qb',
+      /** Order Status */
+      status: 'S3RRIYiGsWTGS',
+      complete: false,
     }
   })
 }

@@ -26,9 +26,7 @@ if (__DEV__) {
 //#region createUsersWithArrayInput
 //#region createUsersWithArrayInput__base
 export namespace createUsersWithArrayInput { export type O = user.createUsersWithArrayInput.O; export type R = user.createUsersWithArrayInput.R }
-/**
- * Creates list of users with given input array
- */
+/** Creates list of users with given input array */
 export const createUsersWithArrayInput = api<createUsersWithArrayInput.O, createUsersWithArrayInput.R>(s + 'createUsersWithArrayInput', {path: '/user/createWithArray'})
 //#endregion createUsersWithArrayInput__base
 
@@ -44,9 +42,7 @@ if (__DEV__) {
 //#region createUsersWithListInput
 //#region createUsersWithListInput__base
 export namespace createUsersWithListInput { export type O = user.createUsersWithListInput.O; export type R = user.createUsersWithListInput.R }
-/**
- * Creates list of users with given input array
- */
+/** Creates list of users with given input array */
 export const createUsersWithListInput = api<createUsersWithListInput.O, createUsersWithListInput.R>(s + 'createUsersWithListInput', {path: '/user/createWithList'})
 //#endregion createUsersWithListInput__base
 
@@ -62,16 +58,14 @@ if (__DEV__) {
 //#region loginUser
 //#region loginUser__base
 export namespace loginUser { export type O = user.loginUser.O; export type R = user.loginUser.R }
-/**
- * Logs user into the system
- */
+/** Logs user into the system */
 export const loginUser = api<loginUser.O, loginUser.R>(s + 'loginUser', {path: '/user/login', method: 'GET', query: 'username&password'})
 //#endregion loginUser__base
 
 //#region loginUser__mock
 if (__DEV__) {
   loginUser.mock('自动生成', () => {
-    return 'tjLFIbkL'
+    return 'GuKS53Ns0O3KgqElOf'
   })
 }
 //#endregion loginUser__mock
@@ -80,9 +74,7 @@ if (__DEV__) {
 //#region logoutUser
 //#region logoutUser__base
 export namespace logoutUser { export type R = user.logoutUser.R }
-/**
- * Logs out current logged in user session
- */
+/** Logs out current logged in user session */
 export const logoutUser = api<logoutUser.R>(s + 'logoutUser', {path: '/user/logout', method: 'GET'})
 //#endregion logoutUser__base
 
@@ -98,9 +90,7 @@ if (__DEV__) {
 //#region getUserByName
 //#region getUserByName__base
 export namespace getUserByName { export type O = user.getUserByName.O; export type R = user.getUserByName.R }
-/**
- * Get user by user name
- */
+/** Get user by user name */
 export const getUserByName = api<getUserByName.O, getUserByName.R>(s + 'getUserByName', {path: '/user/:username', method: 'GET'})
 //#endregion getUserByName__base
 
@@ -108,14 +98,15 @@ export const getUserByName = api<getUserByName.O, getUserByName.R>(s + 'getUserB
 if (__DEV__) {
   getUserByName.mock('自动生成', () => {
     return {
-      id: 15,
-      username: '苏磊亮',
-      firstName: 'Trevor',
-      lastName: 'Robertson',
-      email: 'ophelia.curry@heja.co.uk',
-      password: 'YDIn',
-      phone: '15390546679',
-      userStatus: 203,
+      id: 12,
+      username: '沈苏怡',
+      firstName: 'Norman',
+      lastName: 'Schneider',
+      email: 'angel.malone@abi.gov',
+      password: 'hfoK0ujK',
+      phone: '17529861874',
+      /** User Status */
+      userStatus: 983,
     }
   })
 }

@@ -6,9 +6,7 @@ const s = 'ApiPet.'
 //#region addPet
 //#region addPet__base
 export namespace addPet { export type O = pet.addPet.O; export type R = pet.addPet.R }
-/**
- * Add a new pet to the store
- */
+/** Add a new pet to the store */
 export const addPet = api<addPet.O, addPet.R>(s + 'addPet', {path: '/pet', body: 'id&category&name&photoUrls&tags&status'})
 //#endregion addPet__base
 
@@ -24,9 +22,7 @@ if (__DEV__) {
 //#region updatePet
 //#region updatePet__base
 export namespace updatePet { export type O = pet.updatePet.O; export type R = pet.updatePet.R }
-/**
- * Update an existing pet
- */
+/** Update an existing pet */
 export const updatePet = api<updatePet.O, updatePet.R>(s + 'updatePet', {path: '/pet', method: 'PUT', body: 'id&category&name&photoUrls&tags&status'})
 //#endregion updatePet__base
 
@@ -58,31 +54,20 @@ if (__DEV__) {
         id: 1,
         category: {
           id: 2,
-          name: 'M5n55uCdCXIXFi3V9',
+          name: 'eL3nfdsCYNa',
         },
-        name: 'qkC0ls',
+        name: '11yX7',
         photoUrls: [
-          'http://llss.qiniudn.com/d79caa92b25c7f63f5066dc22dc0282de.jpg',
+          'http://llss.qiniudn.com/dea588d75975a0ae9f76f8a5ae2fa88b0.jpg',
         ],
         tags: [
           {
             id: 3,
-            name: 'PN9dBZRWe',
-          },
-          {
-            id: 4,
-            name: 'yytmWeg',
-          },
-          {
-            id: 5,
-            name: 'moT8pp7lv6f',
-          },
-          {
-            id: 6,
-            name: 'DS3AnSj4i8biVWID',
+            name: '0CYvjk8VHPf7Nh00',
           },
         ],
-        status: '5O7ByeGt9eQ9vkNjgRB',
+        /** pet status in the store */
+        status: 'ZV',
       },
     ]
   })
@@ -105,29 +90,28 @@ export const getPetById = api<getPetById.O, getPetById.R>(s + 'getPetById', {pat
 if (__DEV__) {
   getPetById.mock('自动生成', () => {
     return {
-      id: 7,
+      id: 4,
       category: {
-        id: 8,
-        name: 'd0BPxGzI592C2asrs',
+        id: 5,
+        name: 'LXyWMMFkwO5nmE8m',
       },
-      name: 'Io4Oz6HTnibtKlvdh',
+      name: 'HWI6rYgYr9Alw',
       photoUrls: [
-        'http://llss.qiniudn.com/d868f7175ff7f7e6c2e116988f6851f3b.jpg',
-        'http://llss.qiniudn.com/d35853039e8912f05891f45dfe15af661.png',
-        'http://llss.qiniudn.com/d6bd2a4ca24cefe66346b75eaa00e69f7.png',
-        'http://llss.qiniudn.com/d95b334d0510ddf80d029711ff24545a7.png',
+        'http://llss.qiniudn.com/dea588d75975a0ae9f76f8a5ae2fa88b0.jpg',
+        'http://llss.qiniudn.com/dd57fa4343de47aab98d737e28efd3c85.png',
       ],
       tags: [
         {
-          id: 9,
-          name: '7QM',
+          id: 6,
+          name: 'exTLQHAKc77ZzTmMZ',
         },
         {
-          id: 10,
-          name: 'pGmLiyp',
+          id: 7,
+          name: '1JOCdiB',
         },
       ],
-      status: 'Sw2zPKGLyPuOGwM432',
+      /** pet status in the store */
+      status: 'ntUSdw',
     }
   })
 }
@@ -137,9 +121,7 @@ if (__DEV__) {
 //#region updatePetWithForm
 //#region updatePetWithForm__base
 export namespace updatePetWithForm { export type O = pet.updatePetWithForm.O; export type R = pet.updatePetWithForm.R }
-/**
- * Updates a pet in the store with form data
- */
+/** Updates a pet in the store with form data */
 export const updatePetWithForm = api<updatePetWithForm.O, updatePetWithForm.R>(s + 'updatePetWithForm', {path: '/pet/:petId', http: {headers: {'Content-Type': 'application/x-www-form-urlencoded'}}, body: 'name&status'})
 //#endregion updatePetWithForm__base
 
@@ -155,9 +137,7 @@ if (__DEV__) {
 //#region deletePet
 //#region deletePet__base
 export namespace deletePet { export type O = pet.deletePet.O; export type R = pet.deletePet.R }
-/**
- * Deletes a pet
- */
+/** Deletes a pet */
 export const deletePet = api<deletePet.O, deletePet.R>(s + 'deletePet', {path: '/pet/:petId', method: 'DELETE', header: 'api_key'})
 //#endregion deletePet__base
 
@@ -173,9 +153,7 @@ if (__DEV__) {
 //#region uploadFile
 //#region uploadFile__base
 export namespace uploadFile { export type O = pet.uploadFile.O; export type R = pet.uploadFile.R }
-/**
- * uploads an image
- */
+/** uploads an image */
 export const uploadFile = api<uploadFile.O, uploadFile.R>(s + 'uploadFile', {path: '/pet/:petId/uploadImage', http: {headers: {'Content-Type': 'application/x-www-form-urlencoded'}}, body: 'additionalMetadata&file'})
 //#endregion uploadFile__base
 
@@ -183,9 +161,9 @@ export const uploadFile = api<uploadFile.O, uploadFile.R>(s + 'uploadFile', {pat
 if (__DEV__) {
   uploadFile.mock('自动生成', () => {
     return {
-      code: 929,
-      type: 'AL1rxZ2IiuhzDlTU',
-      message: 'lO9WkyqH9C',
+      code: 899,
+      type: 'hRmuMF3cPLQ',
+      message: '9q5s0Ic',
     }
   })
 }
