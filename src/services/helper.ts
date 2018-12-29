@@ -121,11 +121,11 @@ export interface ApiFileStruct {
   }
 }
 
-const DEFAULT_ACTION: any = {base: 'auto', mock: 'auto'}
+const DEFAULT_ACTION: any = {base: 'manual', mock: 'manual'}
 /**
  * 解析已经存在的 api 文件的内容
  * @param content
- * //#region bindBankCard__base/mock  auto/manual (base 默认 refresh，mock 默认会 reserve)
+ * //#region bindBankCard__base/mock  auto/manual
  * //#endregion bindBankCard__base/mock
  */
 export function parseApiFile(content: string) {

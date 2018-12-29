@@ -21,12 +21,12 @@ export async function generate() {
     const {type = 'fe'} = c
     const tags = parser2(json, c)
 
-    const tpl = (...name: string[]) => path.join(root, 'template', type, ...name)
+    const tpl = (...name: string[]) => path.join(root, 'template', ...name)
     const out = (...name: string[]) => path.resolve(c.outputDir, ...name)
-    const data = getRenderData(json, tags)
+    const data = {...getRenderData(json, tags), type}
 
-    render(tpl('common-fe.ts.dtpl'), out('..', 'common-fe.ts'), data)
-    render(tpl('base.ts.dtpl'), out('base.ts'), data)
+    renderWhenNotExist(tpl(`common-${type}.ts.dtpl`), out('..', `common-${type}.ts`), data)
+    renderWhenNotExist(tpl('base.ts.dtpl'), out('base.ts'), data)
 
     let modal: string[] = [`import {api} from './base'`, '']
     let files: string[] = []
@@ -50,8 +50,8 @@ export async function generate() {
         modal.push(prefix(operation.toModal(), TAB.repeat(2)))
 
         let ref = api[apiName]
-        if (!ref || !ref.base || ref.base.action === 'auto') dp.set(`${apiName}.base.code`, operation.toFeBase({...data}))
-        if (!ref || !ref.mock || ref.mock.action === 'auto') dp.set(`${apiName}.mock.code`, operation.toFeMock())
+        if (!ref || !ref.base || ref.base.action === 'auto') dp.set(`${apiName}.base.code`, operation.toBase({...data}))
+        if (!ref || !ref.mock || ref.mock.action === 'auto') dp.set(`${apiName}.mock.code`, operation.toMock())
         dp.set(`${apiName}.updated`, true)
 
         modal.push(`${TAB}}`)
@@ -108,7 +108,7 @@ function getRenderData(json: swagger2.Schema, tags: parser2.Returns.TagsObject) 
   return {basePath, baseMethod}
 }
 
-function render(fromFile: string, toFile: string, data: any) {
+function renderWhenNotExist(fromFile: string, toFile: string, data: any) {
   // 如果文件存在，则不覆盖
   if (fs.existsSync(toFile)) return
 

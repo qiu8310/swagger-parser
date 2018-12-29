@@ -12,9 +12,9 @@ export namespace createUser { export type O = user.createUser.O; export type R =
  */
 export const createUser = api<createUser.O, createUser.R>(s + 'createUser', {path: '/user', body: 'id&username&firstName&lastName&email&password&phone&userStatus'})
 //#endregion createUser--base
-//#region createUser--mock auto
+//#region createUser--mock manual
 if (__DEV__) {
-  createUser.mock('自动生成', () => {
+  createUser.mock('生成', () => {
     return {}
   })
 }
@@ -57,7 +57,7 @@ export const loginUser = api<loginUser.O, loginUser.R>(s + 'loginUser', {path: '
 //#region loginUser--mock auto
 if (__DEV__) {
   loginUser.mock('自动生成', () => {
-    return '66e'
+    return 'ElnTsjzcLsn0XieLK'
   })
 }
 //#endregion loginUser--mock
@@ -86,15 +86,15 @@ export const getUserByName = api<getUserByName.O, getUserByName.R>(s + 'getUserB
 if (__DEV__) {
   getUserByName.mock('自动生成', () => {
     return {
-      id: 16,
-      username: '许陶雁',
-      firstName: 'Jesus',
-      lastName: 'Parks',
-      email: 'randall.nichols@jan.net',
-      password: 'cHzAipw3Syn',
-      phone: '13179127961',
+      id: 15,
+      username: '柳清全',
+      firstName: 'Jeffery',
+      lastName: 'Vaughn',
+      email: 'roger@jaj.gov',
+      password: 'qL1A',
+      phone: '18551958454',
       /** User Status */
-      userStatus: 315,
+      userStatus: 588,
     }
   })
 }
@@ -135,4 +135,3 @@ if (__DEV__) {
   })
 }
 //#endregion deleteUser--mock
-

@@ -66,15 +66,7 @@ export class Operation {
     return type
   }
 
-  toNodeBase() {
-
-  }
-
-  toNodeMock() {
-
-  }
-
-  toFeBase(config: {baseMethod?: string}) {
+  toBase(config: {baseMethod?: string}) {
     const {id, tag, parameters, desc, method, path} = this.opt
     const hasOptions = parameters.length
 
@@ -105,7 +97,7 @@ export class Operation {
     return apiRows.join(EOL)
   }
 
-  toFeMock() {
+  toMock() {
     const {returns, id} = this.opt
     let mockStr = mock(returns)
     if (!mockStr) return ''

@@ -48,45 +48,44 @@ if (__DEV__) {
         id: 1,
         category: {
           id: 2,
-          name: 'O9JeYt8NRNCE',
+          name: '9sMhre',
         },
-        name: 'oEkSipcv2Wo9ZCkJ0mJY',
+        name: 'YJemg',
         photoUrls: [
-          'http://llss.qiniudn.com/d53024d79aeebacf41c225984ef49eb7f.jpg',
-          'http://llss.qiniudn.com/df8ec7257295a930a836f76b9a20a5834.png',
+          'http://llss.qiniudn.com/db7a67689947e3077c6c34b1f4f86762d.png',
+          'http://llss.qiniudn.com/d6bd2a4ca24cefe66346b75eaa00e69f7.png',
         ],
         tags: [
           {
             id: 3,
-            name: 'OW0Z',
+            name: 'xTz6Jd',
           },
           {
             id: 4,
-            name: 'kVC',
+            name: 'Wvwms1i1gfddZM3w',
           },
         ],
         /** pet status in the store */
-        status: 'dsKHbVx8z9qOviLtxpg',
+        status: 'ii3pdu5J',
       },
       {
         id: 5,
         category: {
           id: 6,
-          name: '92IhdYMxOUuhjt',
+          name: '4LOqPN1',
         },
-        name: 'z9Y97F5NnCGbepLM4v8k',
+        name: '05WodRxV',
         photoUrls: [
-          'http://llss.qiniudn.com/d38770fce78dfca736d1dafaa1371ffed.png',
-          'http://llss.qiniudn.com/d6bd2a4ca24cefe66346b75eaa00e69f7.png',
+          'http://llss.qiniudn.com/dfe7dfb5b0a15b1489adb2575145ccfa3.jpg',
         ],
         tags: [
           {
             id: 7,
-            name: 'XnRJ0TSqZj8See7th',
+            name: 'qHqmotd',
           },
         ],
         /** pet status in the store */
-        status: 'JjQQ',
+        status: '4VDNTGD',
       },
     ]
   })
@@ -110,24 +109,21 @@ if (__DEV__) {
       id: 8,
       category: {
         id: 9,
-        name: 'CDZxUI5VtkHAeh7Z',
+        name: 'tn8gAl6P65Dx',
       },
-      name: 'TgB1Tn5qLAXFuI',
+      name: 'y9jRZ',
       photoUrls: [
-        'http://llss.qiniudn.com/df8ec7257295a930a836f76b9a20a5834.png',
+        'http://llss.qiniudn.com/d5641a3454bc3a9d918405e4766077e66.jpg',
+        'http://llss.qiniudn.com/dd9cb918ac624e719e173833423d8fc6c.jpg',
       ],
       tags: [
         {
           id: 10,
-          name: 'L143yMB7in6YGtkOM',
-        },
-        {
-          id: 11,
-          name: '5EyWGItswjuwf',
+          name: 'Jd8fiuuy8S8Ugxhnuz',
         },
       ],
       /** pet status in the store */
-      status: '3tSp3RyzDiPPUkcORD',
+      status: 'LxQbiY9wzeOhU7nl',
     }
   })
 }
@@ -171,9 +167,9 @@ export const uploadFile = api<uploadFile.O, uploadFile.R>(s + 'uploadFile', {pat
 if (__DEV__) {
   uploadFile.mock('自动生成', () => {
     return {
-      code: 479,
-      type: 'rapTTqK',
-      message: 'Txl',
+      code: 770,
+      type: 'V9b7',
+      message: 'Te4YW',
     }
   })
 }

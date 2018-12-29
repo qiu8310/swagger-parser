@@ -30,12 +30,12 @@ export const placeOrder = api<placeOrder.O, placeOrder.R>(s + 'placeOrder', {pat
 if (__DEV__) {
   placeOrder.mock('自动生成', () => {
     return {
-      id: 12,
-      petId: 13,
-      quantity: 206,
-      shipDate: 'UazikoUJ7o',
+      id: 11,
+      petId: 12,
+      quantity: 216,
+      shipDate: 'e9Y0',
       /** Order Status */
-      status: 'GRnrnEtdBbQnIP',
+      status: 'cw9hq7iM8ia1Jacl1c',
       complete: false,
     }
   })
@@ -56,13 +56,13 @@ export const getOrderById = api<getOrderById.O, getOrderById.R>(s + 'getOrderByI
 if (__DEV__) {
   getOrderById.mock('自动生成', () => {
     return {
-      id: 14,
-      petId: 15,
-      quantity: 132,
-      shipDate: '1mmwdGT5u2k',
+      id: 13,
+      petId: 14,
+      quantity: 444,
+      shipDate: 'D96hsqOIMAfng',
       /** Order Status */
-      status: 'qv7x3aybZ',
-      complete: true,
+      status: 'zC0uJ',
+      complete: false,
     }
   })
 }
