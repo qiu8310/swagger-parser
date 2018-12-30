@@ -66,7 +66,7 @@ export class Operation {
     return type
   }
 
-  toBase(config: {baseMethod?: string}) {
+  toBase(config: {baseMethod?: string, language?: string}) {
     const {id, tag, parameters, desc, method, path} = this.opt
     const hasOptions = parameters.length
 
@@ -83,15 +83,22 @@ export class Operation {
       }
     })
     const setting = settingRows.join(', ')
+    const apiRows: string[] = []
 
     // api 调用
-    let opt = hasOptions ? ` export type O = ${tag}.${id}.O;` : ''
-    let ns = `export namespace ${id} {${opt} export type R = ${tag}.${id}.R }`
-    const apiRows = [ns, ...getDesc(desc)]
-    if (hasOptions) {
-      apiRows.push(`export const ${id} = api<${id}.O, ${id}.R>(s + '${id}', {${setting}})`)
+    if (config.language === 'js') {
+      let ns = `@type {import("@hujiang/foe-api").Application.ApiReturnsWithData<import("./modal").${tag}.${id}.O, import("./modal").${tag}.${id}.R, api.FilterMock<import("./modal").${tag}.${id}.R>>}`
+      apiRows.push(...getDesc(desc ? desc + EOL + ns : ns))
+      apiRows.push(`export const ${id} = api(s + '${id}', {${setting}})`)
     } else {
-      apiRows.push(`export const ${id} = api<${id}.R>(s + '${id}', {${setting}})`)
+      let opt = hasOptions ? ` export type O = ${tag}.${id}.O;` : ''
+      let ns = `export namespace ${id} {${opt} export type R = ${tag}.${id}.R }`
+      apiRows.push(ns, ...getDesc(desc))
+      if (hasOptions) {
+        apiRows.push(`export const ${id} = api<${id}.O, ${id}.R>(s + '${id}', {${setting}})`)
+      } else {
+        apiRows.push(`export const ${id} = api<${id}.R>(s + '${id}', {${setting}})`)
+      }
     }
 
     return apiRows.join(EOL)

@@ -6,6 +6,7 @@
 const configs = [
   {
     type: 'fe',
+    language: 'ts',
     // json: "http://192.168.35.74:9560/v2/api-docs",
     json: 'example-json/petstore.json',
     outputDir: "src/api/petstore",

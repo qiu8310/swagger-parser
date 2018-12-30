@@ -10,6 +10,8 @@ import {parser2} from '../parser2'
 export interface Config extends parser2.Options {
   /** 指定是给前端用的还是给 node 用的 api */
   type?: 'fe' | 'node'
+  /** 生成 javascript 还是 typescript 代码 */
+  language?: 'js' | 'ts'
   /** 指定 swagger json 的地址，可以是个 url 链接，或本地路径（相对于项目根目录） */
   json: string
   /** 生成的 ts 所在的路径（相对于项目根目录） */

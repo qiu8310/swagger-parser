@@ -1,0 +1,9 @@
+const common = require('../common-${type}')
+exports.app = common.createApplication({
+  basePath: '${basePath}',
+  method: '${baseMethod}',
+})
+
+exports.api = function(name, config = {}) {
+  return exports.app.api(name, config)
+}

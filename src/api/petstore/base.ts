@@ -3,7 +3,7 @@ import {createApplication} from '../common-fe'
 
 export const app = createApplication({
   basePath: '/v2',
-  method: 'POST',
+  method: 'GET',
 })
 
 export namespace api {

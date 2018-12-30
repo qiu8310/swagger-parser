@@ -18,15 +18,15 @@ export async function generate() {
     const json = await getSwaggerJson<swagger2.Schema>(c)
     if (!/^2\./.test(json.swagger)) throw new Error(`不支持 swagger 版本：${json.swagger}`)
 
-    const {type = 'fe'} = c
+    const {type = 'fe', language = 'ts'} = c
     const tags = parser2(json, c)
 
     const tpl = (...name: string[]) => path.join(root, 'template', ...name)
     const out = (...name: string[]) => path.resolve(c.outputDir, ...name)
     const data = {...getRenderData(json, tags), type}
 
-    renderWhenNotExist(tpl(`common-${type}.ts.dtpl`), out('..', `common-${type}.ts`), data)
-    renderWhenNotExist(tpl('base.ts.dtpl'), out('base.ts'), data)
+    renderWhenNotExist(tpl(`common-${type}`), out('..', `common-${type}`), data, language)
+    renderWhenNotExist(tpl('base'), out('base'), data, language)
 
     let modal: string[] = [`import {api} from './base'`, '']
     let files: string[] = []
@@ -40,7 +40,7 @@ export async function generate() {
         if (!tempFileName) return
         if (tempFileName && typeof tempFileName === 'string') fileName = tempFileName
       }
-      let fullFileName = out(fileName + '.ts')
+      let fullFileName = out(fileName + '.' + language)
 
       // 如果存在旧文件，则解析旧文件结构
       const {api, dp} = parseApiFile(getFile(fullFileName))
@@ -50,7 +50,7 @@ export async function generate() {
         modal.push(prefix(operation.toModal(), TAB.repeat(2)))
 
         let ref = api[apiName]
-        if (!ref || !ref.base || ref.base.action === 'auto') dp.set(`${apiName}.base`, {action: 'auto', code: operation.toBase({...data})})
+        if (!ref || !ref.base || ref.base.action === 'auto') dp.set(`${apiName}.base`, {action: 'auto', code: operation.toBase({...data, language})})
         if (!ref || !ref.mock || ref.mock.action === 'auto') dp.set(`${apiName}.mock`, {action: 'auto', code: operation.toMock()})
         dp.set(`${apiName}.exists`, true)
 
@@ -58,9 +58,11 @@ export async function generate() {
       })
 
       // 生成文件
-      let s = `import {api} from './base'${EOL}import {${tagName}} from './modal'${EOL}${EOL}const s = '${fileName}.'${EOL}${EOL}`
+      let s = language === 'js'
+        ? `// @ts-check${EOL}import {api} from './base'${EOL}${EOL}const s = '${fileName}.'${EOL}${EOL}`
+        : `import {api} from './base'${EOL}import {${tagName}} from './modal'${EOL}${EOL}const s = '${fileName}.'${EOL}${EOL}`
       writeFile(fullFileName, s + groupApi2File(api))
-      files.push(fileName + '.ts')
+      files.push(fileName + '.' + language)
 
       modal.push(`}`)
     })
@@ -71,7 +73,7 @@ export async function generate() {
     })
 
     // 生成 modal
-    writeFile(out('modal.ts'), modal.join(EOL) + EOL)
+    writeFile(out(`modal${language === 'js' ? '.d' : ''}.ts`), modal.join(EOL) + EOL)
   })
 }
 
@@ -108,19 +110,31 @@ function getRenderData(json: swagger2.Schema, tags: parser2.Returns.TagsObject) 
   return {basePath, baseMethod}
 }
 
-function renderWhenNotExist(fromFile: string, toFile: string, data: any) {
-  // 如果文件存在，则不覆盖
-  if (fs.existsSync(toFile)) return
+function renderWhenNotExist(fromFile: string, toFile: string, data: any, language = 'ts') {
 
-  let content = fs.readFileSync(fromFile, 'utf-8')
-  content = content.replace(/\${(\w+)}/g, (r, key) => {
-    if (data.hasOwnProperty(key)) {
-      return data[key]
-    } else {
-      return r
-    }
-  })
-  writeFile(toFile, content)
+  let run = (_fromFile: string, _toFile: string) => {
+    // 如果文件存在，则不覆盖
+    if (fs.existsSync(_toFile)) return
+
+    let content = fs.readFileSync(_fromFile, 'utf-8')
+    content = content.replace(/\${(\w+)}/g, (r, key) => {
+      if (data.hasOwnProperty(key)) {
+        return data[key]
+      } else {
+        return r
+      }
+    })
+    writeFile(_toFile, content)
+  }
+
+  if (language === 'ts') {
+    run(fromFile + '.ts.dtpl', toFile + '.ts')
+  } else if (language === 'js') {
+    run(fromFile + '.js.dtpl', toFile + '.js')
+    run(fromFile + '.d.ts.dtpl', toFile + '.d.ts')
+  } else {
+    throw new Error(`不支持生成语言： "${language}"`)
+  }
 }
 
 function prefix(content: string, prefixStr: string) {
