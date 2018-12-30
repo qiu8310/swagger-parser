@@ -117,7 +117,7 @@ export interface ApiFileStruct {
   [key: string]: {
     base?: {action: 'auto' | 'manual', code: string}
     mock?: {action: 'auto' | 'manual', code: string}
-    updated: boolean
+    exists: boolean
   }
 }
 
@@ -129,13 +129,13 @@ const DEFAULT_ACTION: any = {base: 'manual', mock: 'manual'}
  * //#endregion bindBankCard__base/mock
  */
 export function parseApiFile(content: string) {
-  const regexp = /^\/\/\s*#region\s+([a-zA-Z0-9]+)--(base|mock)(?:\s+(auto|manual))?([\s\S]*?)\/\/\s*#endregion\s+\1__\2/mg
+  const regexp = /^\/\/\s*#region\s+([a-zA-Z0-9]+)--(base|mock)(?:\s+(auto|manual))?([\s\S]*?)\/\/\s*#endregion\s+\1--\2/mg
   const api: ApiFileStruct = {}
   const dp = new DotProp(api)
 
   content.replace(regexp, (_, id, feature, action, code) => {
     if (!action) action = DEFAULT_ACTION[feature]
-    dp.set(`${id}.updated`, false)
+    dp.set(`${id}.exists`, false) // 遍历 api 的时候才会将它设置成 true
     dp.set(`${id}.${feature}`, {action, code: code.trim()})
     return _
   })
@@ -146,20 +146,20 @@ export function parseApiFile(content: string) {
 export function groupApi2File(api: ApiFileStruct) {
   const rows: string[] = []
   Object.keys(api).forEach(id => {
-    let {base, mock, updated} = api[id]
+    let {base, mock, exists} = api[id]
 
-    // let hasCode = base && updated || mock
+    // let hasCode = base && exists || mock
     // if (hasCode) rows.push(`//#region ${id}`)
 
-    if (base && updated) { // 删除了的 base 不保留
+    if (base && (exists || base.action === 'manual')) {
       rows.push(`//#region ${id}--base ${base.action ? base.action : DEFAULT_ACTION.base}`)
       rows.push(base.code)
       rows.push(`//#endregion ${id}--base`)
       // if (mock) rows.push('') // 添加一个空行
     }
-    if (mock) { // 删除了的 mock 继续保留，但加上注释，并且自动重置成空 action
+    if (mock && (exists || mock.action === 'manual')) {
       rows.push(`//#region ${id}--mock ${mock.action ? mock.action : DEFAULT_ACTION.mock}`)
-      rows.push(updated ? mock.code : commentCode(mock.code))
+      rows.push(mock.code)
       rows.push(`//#endregion ${id}--mock`)
     }
     // if (hasCode) rows.push(`//#endregion ${id}`)

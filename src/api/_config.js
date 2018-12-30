@@ -9,13 +9,13 @@ const configs = [
     // json: "http://192.168.35.74:9560/v2/api-docs",
     json: 'example-json/petstore.json',
     outputDir: "src/api/petstore",
-    // tagNameMap: (name) => {
-    //   return name === 'user'
-    // },
-    // apiNameMap: (name) => {
-    //   return name.startsWith('getUser')
-    //   // return name === 'createUser'
-    // },
+    tagNameMap: (name) => {
+      return name === 'pet'
+    },
+    apiNameMap: (name) => {
+      return name.startsWith('getPet') || name.startsWith('findPet')
+      // return name !== 'addPet'
+    },
     operationMap: (operation, tagName, apiName) => {
 
     },

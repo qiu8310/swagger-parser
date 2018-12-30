@@ -50,9 +50,9 @@ export async function generate() {
         modal.push(prefix(operation.toModal(), TAB.repeat(2)))
 
         let ref = api[apiName]
-        if (!ref || !ref.base || ref.base.action === 'auto') dp.set(`${apiName}.base.code`, operation.toBase({...data}))
-        if (!ref || !ref.mock || ref.mock.action === 'auto') dp.set(`${apiName}.mock.code`, operation.toMock())
-        dp.set(`${apiName}.updated`, true)
+        if (!ref || !ref.base || ref.base.action === 'auto') dp.set(`${apiName}.base`, {action: 'auto', code: operation.toBase({...data})})
+        if (!ref || !ref.mock || ref.mock.action === 'auto') dp.set(`${apiName}.mock`, {action: 'auto', code: operation.toMock()})
+        dp.set(`${apiName}.exists`, true)
 
         modal.push(`${TAB}}`)
       })
