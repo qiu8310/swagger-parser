@@ -1,7 +1,7 @@
 /**!
  * 对 swagger2.0 的解析
  */
-import {camelCase} from 'mora-common/util/string'
+import {camelCase, capCamelCase} from 'mora-common/util/string'
 import * as DotProp from 'mora-scripts/libs/lang/DotProp'
 
 import {swagger2} from './schema/swagger2'
@@ -9,7 +9,7 @@ import {Definition} from './struct/Definition'
 import {Desc} from './struct/Desc'
 import {Operation} from './struct/Operation'
 import {Type, ArrayType, ObjectType} from './struct/Type'
-import {Omit, eachObject} from './util'
+import {Omit, eachObject, isValidTagName, smartGetUniqueTagNameFromPaths} from './util'
 
 export namespace parser2 {
   export interface Options {
@@ -30,6 +30,15 @@ export namespace parser2 {
      * 同时，有些 swagger 生成的 api 都会加上 "UsingPOST/GET/DELETE" 后缀，如 "createOrderUsingPOST"
      */
     normalizeName?: boolean
+
+    /**
+     * 后台的 tag name 经常是中文名，而 swagger-parser 需要将 tag name 当作文件名称
+     * 所以不能用中文名，如果此选项为 true，则会根据 api 的路径来智能的获取不重复的 tag name，
+     * 此操作在 tagNameMap 之前，并且当且仅当 tag name 中不存在英文时会解析
+     *
+     * 默认值： true
+     */
+    smartTagName?: boolean
 
     /**
      * 将 tag 的名称映射成另一个
@@ -74,8 +83,9 @@ export namespace parser2 {
 
 export function parser2(schema: swagger2.Schema, options: parser2.Options = {}) {
   const tags: parser2.Returns.TagsObject = {}
+  const operations: Operation[] = []
   // 含有默认值的配置
-  const {normalizeName = true} = options
+  const {normalizeName = true, smartTagName = true} = options
 
   // 遍历所有 path
   eachObject(schema.paths, (pathKey, pathObj) => {
@@ -107,7 +117,8 @@ export function parser2(schema: swagger2.Schema, options: parser2.Options = {}) 
           if (!newname) return
           if (typeof newname === 'string') tagName = newname
         }
-        tagName = camelCase(tagName)
+        // , capCamelCase 会过滤掉中文，所以如果是中文的话则使用它本身
+        tagName = isValidTagName(tagName) ? capCamelCase(tagName) : tagName
 
         if (normalizeName) apiName = normalizeApiName(apiName)
         if (options.apiNameMap) {
@@ -117,7 +128,7 @@ export function parser2(schema: swagger2.Schema, options: parser2.Options = {}) 
         }
         apiName = camelCase(apiName)
 
-        let operations = getObjectValue(tags, tagName)
+        let tagOperations = getObjectValue(tags, tagName)
         let operation = {} as Operation.OperationObject
 
         operation.tag = tagName
@@ -141,13 +152,33 @@ export function parser2(schema: swagger2.Schema, options: parser2.Options = {}) 
         }
         operation.returns = returnType
 
-        operations[apiName] = new Operation(operation)
-        if (options.operationMap) options.operationMap(operations[apiName], tagName, apiName)
+        tagOperations[apiName] = new Operation(operation)
+        operations.push(tagOperations[apiName])
       })
-
     })
   })
 
+  if (smartTagName) {
+    let takenTags: string[] = []
+    let invalidTagObjs: Array<{paths: string[], name: string}> = []
+    eachObject(tags, (tagName, tagObj) => {
+      if (isValidTagName(tagName)) takenTags.push(tagName)
+      else invalidTagObjs.push({name: tagName, paths: Object.entries(tagObj).map(([k, v]) => v.opt.path)})
+    })
+    let newTagMap = smartGetUniqueTagNameFromPaths(invalidTagObjs, takenTags)
+    eachObject(newTagMap, (oldTagName, newTagName) => {
+      tags[newTagName] = tags[oldTagName]
+      delete tags[oldTagName]
+      eachObject(tags[newTagName], (apiName, operation) => operation.opt.tag = newTagName)
+    })
+  }
+
+  eachObject(tags, (tagName) => {
+    if (!isValidTagName(tagName)) {
+      throw new Error(`Tag 名称（"${tagName}"）需要是纯英文的，请使用 tagNameMap 将其转化成英文名`)
+    }
+  })
+  operations.forEach(op => options.operationMap && options.operationMap(op, op.opt.tag, op.opt.id))
   return tags
 }
 
