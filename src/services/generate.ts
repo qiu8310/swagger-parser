@@ -50,8 +50,18 @@ export async function generate() {
         modal.push(prefix(operation.toModal(), TAB.repeat(2)))
 
         let ref = api[apiName]
-        if (!ref || !ref.base || ref.base.action === 'auto') dp.set(`${apiName}.base`, {action: 'auto', code: operation.toBase({...data, language})})
-        if (!ref || !ref.mock || ref.mock.action === 'auto') dp.set(`${apiName}.mock`, {action: 'auto', code: operation.toMock(c.mock)})
+        if (!ref || !ref.base || ref.base.action === 'auto') {
+          dp.set(
+            `${apiName}.base`,
+            {action: 'auto', code: operation.toBase({...data, docPrefix: c.docPrefix, language})
+          })
+        }
+        if (!ref || !ref.mock || ref.mock.action === 'auto') {
+          dp.set(
+            `${apiName}.mock`,
+            {action: 'auto', code: operation.toMock(c.mock)
+          })
+        }
         dp.set(`${apiName}.exists`, true)
 
         modal.push(`${TAB}}`)

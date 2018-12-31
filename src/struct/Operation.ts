@@ -10,12 +10,14 @@ const {EOL, TAB} = FORMAT
 
 export namespace Operation {
   export interface OperationObject {
-    /** 当前 api 所在的标签名称 */
+    /** 处理过的标准的标签名称 */
     tag: string
     /** 处理过后的 operationId  */
     id: string
     /** swagger 文档中的 operationId */
     rawId: string
+    /** swagger 文档中的 tag 名称 */
+    rawTag: string
     /** 描述 */
     desc?: string
     /** http method，大写字母 */
@@ -73,7 +75,7 @@ export class Operation {
     return type
   }
 
-  toBase(config: {baseMethod?: string, language?: string}) {
+  toBase(config: {baseMethod?: string, language?: string, docPrefix?: string}) {
     const {id, tag, parameters, desc, method, path} = this.opt
     const hasOptions = parameters.length
 
@@ -92,15 +94,24 @@ export class Operation {
     const setting = settingRows.join(', ')
     const apiRows: string[] = []
 
+    let {opt} = this
+    let doc: string[] = []
+    if (desc) doc.push(desc)
+    doc.push(`${EOL}**TAG:** ${opt.rawTag}； &nbsp;&nbsp; **PATH:** ${opt.path}；`)
+    if (config.docPrefix) {
+      doc.push(`@see [线上文档](${config.docPrefix}/${this.opt.rawTag}/${this.opt.rawId})`)
+    }
+
     // api 调用
     if (config.language === 'js') {
       let ns = `@type {import("@hujiang/foe-api").Application.ApiReturnsWithData<import("./modal").${tag}.${id}.O, import("./modal").${tag}.${id}.R, api.FilterMock<import("./modal").${tag}.${id}.R>>}`
-      apiRows.push(...getDesc(desc ? desc + EOL + ns : ns))
+      doc.push(ns)
+      apiRows.push(...getDesc(doc.join(EOL)))
       apiRows.push(`export const ${id} = api(s + '${id}', {${setting}})`)
     } else {
-      let opt = hasOptions ? ` export type O = ${tag}.${id}.O;` : ''
-      let ns = `export namespace ${id} {${opt} export type R = ${tag}.${id}.R }`
-      apiRows.push(ns, ...getDesc(desc))
+      let nsOpt = hasOptions ? ` export type O = ${tag}.${id}.O;` : ''
+      let ns = `export namespace ${id} {${nsOpt} export type R = ${tag}.${id}.R }`
+      apiRows.push(ns, ...getDesc(doc.join(EOL)))
       if (hasOptions) {
         apiRows.push(`export const ${id} = api<${id}.O, ${id}.R>(s + '${id}', {${setting}})`)
       } else {

@@ -71,6 +71,8 @@ export interface Config extends parser2.Options {
   language?: 'js' | 'ts'
   /** 指定 swagger json 的地址，可以是个 url 链接，或本地路径（相对于项目根目录） */
   json: string
+  /** swagger ui 文档地址前缀，生成文档时会添加 /{tagName}/{apiName} 后缀用于点击跳转到文档位置 */
+  docPrefix?: string
   /** 生成的 ts 所在的路径，如果没有指定此目录，则和 _config.js 文件同目录下的 name 文件夹 */
   outputDir?: string
 

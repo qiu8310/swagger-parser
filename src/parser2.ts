@@ -109,6 +109,7 @@ export function parser2(schema: swagger2.Schema, options: parser2.Options = {}) 
 
       // 遍历所有 tag ( 一般一个 api 只会定义一个 tag )
       operationTags.forEach(tagName => {
+        let rawTagName = tagName
         let apiName = operationObject.operationId
 
         if (normalizeName) tagName = normalizeTagName(tagName)
@@ -133,6 +134,7 @@ export function parser2(schema: swagger2.Schema, options: parser2.Options = {}) 
 
         operation.tag = tagName
         operation.id = apiName
+        operation.rawTag = rawTagName
         operation.rawId = operationObject.operationId
         operation.method = operationMethod.toUpperCase()
         operation.path = pathKey

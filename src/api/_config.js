@@ -10,6 +10,7 @@ const configs = [
     language: 'ts',
     // json: "http://192.168.35.74:9560/v2/api-docs",
     json: 'example-json/petstore.json',
+    docPrefix: 'https://petstore.swagger.io/#',
     tagNameMap: (name) => {
       return name === 'pet'
     },
