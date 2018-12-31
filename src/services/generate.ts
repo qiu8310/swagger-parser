@@ -32,7 +32,10 @@ export async function generate(cliOpts: {name?: string[]} = {}) {
     renderWhenNotExist(tpl(`common-${type}`), out('..', `common-${type}`), data, language)
     renderWhenNotExist(tpl('base'), out('base'), data, language)
 
-    let modal: string[] = [`import {api} from './base'`, '']
+    let modal: string[] = [
+      '// tslint:disable', // 禁用 tslint
+      `import {api} from './base'`, ''
+    ]
     let files: string[] = []
     eachObject(tags, (tagName, tagObj) => {
       modal.push(`export namespace ${tagName} {`)
