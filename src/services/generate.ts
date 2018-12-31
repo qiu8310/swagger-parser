@@ -1,6 +1,7 @@
 import * as fs from 'fs-extra'
 import {series} from 'mora-common/util/async'
 import {capCamelCase} from 'mora-common/util/string'
+import {info} from 'mora-scripts/libs/sys'
 
 import * as path from 'path'
 import {FORMAT} from '../config'
@@ -13,10 +14,11 @@ import {getConfig, lookupRootDir, getSwaggerJson, writeFile, parseApiFile, getFi
 const {TAB, EOL} = FORMAT
 
 export async function generate(cliOpts: {name?: string[]} = {}) {
-  const root = lookupRootDir()
+  const root = lookupRootDir(__dirname)
   await series(getConfig(), async c => {
     if (cliOpts.name && cliOpts.name.length && !cliOpts.name.includes(c.name)) return
 
+    info(`解析 swagger 项目：${c.name} ...`)
     const json = await getSwaggerJson<swagger2.Schema>(c)
     if (!/^2\./.test(json.swagger)) throw new Error(`不支持 swagger 版本：${json.swagger}`)
 
@@ -48,6 +50,9 @@ export async function generate(cliOpts: {name?: string[]} = {}) {
       const {api, dp} = parseApiFile(getFile(fullFileName))
 
       eachObject(tagObj, (apiName, operation) => {
+        if (c.showGenerateLog) {
+          console.log(`  generate ${tagName}.${apiName} ${operation.opt.path}`)
+        }
         modal.push(`${TAB}export namespace ${apiName} {`)
         modal.push(prefix(operation.toModal(), TAB.repeat(2)))
 

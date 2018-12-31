@@ -64,6 +64,9 @@ export namespace parser2 {
      * 注意：如果一个 api 有多个 tag，则同一个接口会多次调用此函数
      */
     operationMap?: (operation: Operation, tagName: string, apiName: string) => void
+
+    /** 是否输出 parse 的日志 */
+    showParseLog?: boolean
   }
 
   export namespace Returns {
@@ -111,6 +114,7 @@ export function parser2(schema: swagger2.Schema, options: parser2.Options = {}) 
       operationTags.forEach(tagName => {
         let rawTagName = tagName
         let apiName = operationObject.operationId
+        if (options.showParseLog) console.log(`  parse ${tagName}.${apiName} ${pathKey}`)
 
         if (normalizeName) tagName = normalizeTagName(tagName)
         if (options.tagNameMap) {

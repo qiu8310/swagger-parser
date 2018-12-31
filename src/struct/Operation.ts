@@ -8,6 +8,8 @@ import {Type, ObjectType, getDesc} from './Type'
 
 const {EOL, TAB} = FORMAT
 
+class LocateError extends Error {}
+
 export namespace Operation {
   export interface OperationObject {
     /** 处理过的标准的标签名称 */
@@ -177,40 +179,49 @@ export class Operation {
   operateSubTypeByPath(type: Type, targetPath: string, omit: boolean): Type
   operateSubTypeByPath(type: Type, targetPath: string, omit?: boolean) {
     let parts = parseTargetPath(targetPath)
-    try {
-      let error = () => {
-        throw new Error(`${this.key} 无法定位路径 ${targetPath}`)
-      }
+    let error = () => {
+      throw new LocateError(`${this.key} 无法定位路径 ${targetPath}`)
+    }
 
-      for (let i = 0; i < parts.length; i++) {
-        let {key, indexes} = parts[i]
-        for (let index = 0; index < indexes.length; index++) {
-          if (Type.isArrayType(type)) {
-            type = type.type
-          } else {
-            error()
-          }
-        }
-
-        if (Type.isObjectType(type)) {
-          let definition = type.definitions.find(d => d.name === key)
-          if (definition) {
-            if (i === parts.length - 1) {
-              type.definitions = type.definitions.filter(d => d !== definition)
-            }
-            type = definition.type
-          } else {
-            error()
-          }
+    for (let i = 0; i < parts.length; i++) {
+      let {key, indexes} = parts[i]
+      for (let index = 0; index < indexes.length; index++) {
+        if (Type.isArrayType(type)) {
+          type = type.type
         } else {
           error()
         }
       }
-    } catch (e) {
-      warn(e.message)
+
+      if (Type.isObjectType(type)) {
+        let definition = type.definitions.find(d => d.name === key)
+        if (definition) {
+          if (i === parts.length - 1 && omit) {
+            type.definitions = type.definitions.filter(d => d !== definition)
+          }
+          type = definition.type
+        } else {
+          error()
+        }
+      } else {
+        error()
+      }
     }
 
     return type
+  }
+
+  private __operateSubTypeByPath(ignoreWarn: boolean, type: Type, targetPath: string, omit?: boolean) {
+    try {
+      return this.operateSubTypeByPath(type, targetPath, !!omit)
+    } catch (e) {
+      if (e instanceof LocateError) {
+        if (!ignoreWarn) warn(e.message)
+        return type
+      } else {
+        throw e
+      }
+    }
   }
 
   /**
@@ -224,13 +235,16 @@ export class Operation {
    * - 'arr[].code'   忽略数组 arr 中每一项的 code 字段
    * - 'arr[][].code' 忽略数组 arr 中所有数组中的每一项的 code 字段
    */
-  omitParameter(location: Operation.IN, targetPath: string) {
+  omitParameter(location: Operation.IN, targetPath: string, ignoreWarn = false) {
     let param = this.opt.parameters.find(p => p.in === location)
     if (!param) {
-      warn(`${this.key} 中的 ${location} 没有任何参数`)
+      if (!ignoreWarn) {
+        warn(`${this.key} 中的 ${location} 没有任何参数`)
+      }
     } else {
-      this.operateSubTypeByPath(param.type, targetPath, true)
+      this.__operateSubTypeByPath(ignoreWarn, param.type, targetPath, true)
     }
+    return this
   }
 
   /**
@@ -244,8 +258,9 @@ export class Operation {
    * - 'arr[].code'   忽略数组 arr 中每一项的 code 字段
    * - 'arr[][].code' 忽略数组 arr 中所有数组中的每一项的 code 字段
    */
-  omitResponse(targetPath: string) {
-    this.operateSubTypeByPath(this.opt.returns, targetPath, true)
+  omitResponse(targetPath: string, ignoreWarn = false) {
+    this.__operateSubTypeByPath(ignoreWarn, this.opt.returns, targetPath, true)
+    return this
   }
 
   /**
@@ -258,9 +273,9 @@ export class Operation {
    * - 'arr[].code'   忽略数组 arr 中每一项的 code 字段
    * - 'arr[][].code' 忽略数组 arr 中所有数组中的每一项的 code 字段
    */
-  pickResponse(targetPath: string) {
+  pickResponse(targetPath: string, ignoreWarn = false) {
     let {returns} = this.opt
-    let type = this.operateSubTypeByPath(returns, targetPath)
+    let type = this.__operateSubTypeByPath(ignoreWarn, returns, targetPath)
     type.desc = returns.desc
     this.opt.returns = type
     return type

@@ -7,9 +7,9 @@ import * as path from 'path'
 import {FORMAT} from '../config'
 import {ParsedConfig} from './types'
 
-export function lookupRootDir() {
+export function lookupRootDir(fromDir?: string) {
   try {
-    return path.dirname(findup.pkg())
+    return path.dirname(findup.pkg(fromDir))
   } catch (e) {
     throw new Error(`无法定位到项目根目录，请确保当前目录在一个含有 package.json 的项目中`)
   }

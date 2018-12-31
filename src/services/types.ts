@@ -76,6 +76,9 @@ export interface Config extends parser2.Options {
   /** 生成的 ts 所在的路径，如果没有指定此目录，则和 _config.js 文件同目录下的 name 文件夹 */
   outputDir?: string
 
+  /** 是否输出 generate 相关的日志 */
+  showGenerateLog?: boolean
+
   /** 生成的 api 的名称，默认使用 Api[TagName] 的结构 */
   fileNameMap?: (oldName: string) => string | boolean
 

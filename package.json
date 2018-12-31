@@ -1,14 +1,18 @@
 {
   "name": "@mora/swagger-parser",
-  "version": "0.0.0",
+  "version": "0.0.3",
   "publishConfig": {
     "access": "public"
   },
+
   "description": "",
   "bin": "dist/bin/swagger-parser.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "scripts": {},
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
   "keywords": [],
   "engines": {
     "node": ">=8.0.0"
