@@ -12,9 +12,11 @@ import {getConfig, lookupRootDir, getSwaggerJson, writeFile, parseApiFile, getFi
 
 const {TAB, EOL} = FORMAT
 
-export async function generate() {
+export async function generate(cliOpts: {name?: string[]} = {}) {
   const root = lookupRootDir()
   await series(getConfig(), async c => {
+    if (cliOpts.name && cliOpts.name.length && !cliOpts.name.includes(c.name)) return
+
     const json = await getSwaggerJson<swagger2.Schema>(c)
     if (!/^2\./.test(json.swagger)) throw new Error(`不支持 swagger 版本：${json.swagger}`)
 
@@ -86,8 +88,6 @@ export async function generate() {
     writeFile(out(`modal${language === 'js' ? '.d' : ''}.ts`), modal.join(EOL) + EOL)
   })
 }
-
-generate().then(() => {}).catch((e) => console.log(e))
 
 function eachTags(tags: parser2.Returns.TagsObject, fn: (tagName: string, apiName: string, operation: Operation) => void) {
   eachObject(tags, (tagName, tagObj) => {

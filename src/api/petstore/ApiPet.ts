@@ -22,24 +22,23 @@ if (__DEV__) {
       id: 1,
       category: {
         id: 1,
-        name: 'Pet种类 2',
+        name: 'Pet种类 1',
       },
-      name: '猫211',
+      name: '猫822',
       photoUrls: [
-        'http://llss.qiniudn.com/df5a0f51a205e7bd71bbb61688bc09abf.png',
-        'http://llss.qiniudn.com/d0e7a2f0f3392f4df8ef3babb876c74a5.png',
-        'http://llss.qiniudn.com/ddad40594715b7ed672ecf0d3418fe9c4.jpg',
-        'http://llss.qiniudn.com/d38770fce78dfca736d1dafaa1371ffed.png',
+        'http://llss.qiniudn.com/dde050ca7fdf7a02f8b0474d9122455cc.png',
+        'http://llss.qiniudn.com/dd9cb918ac624e719e173833423d8fc6c.jpg',
+        'http://llss.qiniudn.com/d1eef203c492adee12aa9a5cad5ec7c5a.png',
+        'http://llss.qiniudn.com/dd9cb918ac624e719e173833423d8fc6c.jpg',
       ],
       tags: [
         {
           id: 1,
-          name: 'xadP9SPdJ7jVmvJdQY',
+          name: '0dhOBMU',
         },
       ],
-      status: 'kJTqWqFRENrG5d',
+      status: 'IT3G3g5q5GVqLxvMhB',
     }
   })
 }
 //#endregion getPetById--mock
-

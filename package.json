@@ -2,8 +2,9 @@
   "name": "swagger-parser",
   "version": "0.0.0",
   "description": "",
-  "main": "dist/parser.js",
-  "types": "dist/parser.d.ts",
+  "bin": "dist/bin/swagger-parser.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {},
   "keywords": [],
   "engines": {
