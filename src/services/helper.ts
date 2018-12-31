@@ -5,42 +5,7 @@ import * as DotProp from 'mora-scripts/libs/lang/DotProp'
 
 import * as path from 'path'
 import {FORMAT} from '../config'
-import {parser2} from '../parser2'
-
-export interface Config extends parser2.Options {
-  /** 指定是给前端用的还是给 node 用的 api */
-  type?: 'fe' | 'node'
-  /** 生成 javascript 还是 typescript 代码 */
-  language?: 'js' | 'ts'
-  /** 指定 swagger json 的地址，可以是个 url 链接，或本地路径（相对于项目根目录） */
-  json: string
-  /** 生成的 ts 所在的路径（相对于项目根目录） */
-  outputDir: string
-
-  /** 生成的 api 的名称，默认使用 Api[TagName] 的结构 */
-  fileNameMap?: (oldName: string) => string | boolean
-
-  // /**
-  //  * 示例 mock 数据
-  //  *
-  //  * @example
-  //  *
-  //  * {
-  //  *   'user.name': '中文名',
-  //  *   'users[].name': '数组中的中文名'
-  //  *   'ccv2': '123'
-  //  * }
-  //  */
-  // exampleMocks?: {[key: string]: string | number | boolean}
-
-  // /**
-  //  * mock 配置
-  //  */
-  // mockConfig?: {
-  //   // 时间戳的长度（js 中是 10 位， java 中是 13 位）
-  //   timestampLength?: 10 | 13
-  // }
-}
+import {ParsedConfig} from './types'
 
 export function lookupRootDir() {
   try {
@@ -53,17 +18,17 @@ export function lookupRootDir() {
 /**
  * 获取固定目录下的配置文件
  */
-export function getConfig(): Config[] {
+export function getConfig() {
   const root = lookupRootDir()
   const relativePath = path.join('src', 'api', '_config.js')
   const filePath = path.join(root, relativePath)
   if (!fs.existsSync(filePath)) throw new Error(`配置文件 ${relativePath} 不存在`)
 
-  const configs: Config[] = [].concat(require(filePath))
+  const configs: ParsedConfig[] = [].concat(require(filePath))
 
   // 格式化 json
   configs.forEach(c => {
-    c.outputDir = path.resolve(root, c.outputDir)
+    c.outputDir = path.resolve(path.dirname(filePath), c.outputDir || c.name)
     if (!isUrl(c.json)) c.json = path.resolve(root, c.json)
   })
 
@@ -73,7 +38,7 @@ export function getConfig(): Config[] {
 /**
  * 获取配置文件中的 swagger json 对象
  */
-export async function getSwaggerJson<T>(c: Config) {
+export async function getSwaggerJson<T>(c: ParsedConfig) {
   let outputDir = c.outputDir
   let json: T
   if (isUrl(c.json)) {
@@ -114,7 +79,6 @@ export function getFile(filepath: string) {
   return ''
 }
 
-
 export interface ApiFileStruct {
   [key: string]: {
     base?: {action: 'auto' | 'manual', code: string}
@@ -149,6 +113,7 @@ export function groupApi2File(api: ApiFileStruct) {
   const rows: string[] = []
   Object.keys(api).forEach(id => {
     let {base, mock, exists} = api[id]
+    let pushed = false
 
     // let hasCode = base && exists || mock
     // if (hasCode) rows.push(`//#region ${id}`)
@@ -158,14 +123,16 @@ export function groupApi2File(api: ApiFileStruct) {
       rows.push(base.code)
       rows.push(`//#endregion ${id}--base`)
       // if (mock) rows.push('') // 添加一个空行
+      pushed = true
     }
     if (mock && (exists || mock.action === 'manual')) {
       rows.push(`//#region ${id}--mock ${mock.action ? mock.action : DEFAULT_ACTION.mock}`)
       rows.push(mock.code)
       rows.push(`//#endregion ${id}--mock`)
+      pushed = true
     }
     // if (hasCode) rows.push(`//#endregion ${id}`)
-    rows.push('', '')
+    if (pushed) rows.push('', '')
   })
   return rows.join(FORMAT.EOL)
 }

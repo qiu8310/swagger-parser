@@ -1,5 +1,7 @@
 import {range, permutation} from 'mora-common/util/math'
 import {capCamelCase} from 'mora-common/util/string'
+import {FORMAT} from './config'
+const {EOL, TAB} = FORMAT
 
 export type Omit<O, K> = Pick<O, Exclude<keyof O, K>>
 
@@ -49,4 +51,39 @@ export function smartGetUniqueTagNameFromPaths(tags: Array<{name: string, paths:
   })
 
   return res
+}
+
+export function value2js(value: any, level = 0) {
+  let p = TAB.repeat(level)
+
+  if (Array.isArray(value)) {
+    let res: string[] = ['[']
+    res.push(...value.map(v => `${p}${TAB}${value2js(v, level + 1)},`))
+    res.push(p + ']')
+    return res.join(EOL)
+  } else if (typeof value === 'object') {
+    let res: string[] = ['{']
+    // key 可能需要加上引用
+    let addQuote = Object.keys(value).some(k => !/^\w+$/.test(k))
+    let quote = addQuote ? '\'' : ''
+    res.push(...Object.entries(value).map(([key, val]) => `${p}${TAB}${quote}${key}${quote}: ${value2js(val, level + 1)},`))
+    res.push(p + '}')
+    return res.join(EOL)
+  } else if (typeof value === 'string') {
+    return `'${escape(value)}'`
+  } else {
+    return JSON.stringify(value)
+  }
+}
+
+function escape(str: string) {
+  return str.replace(/'/g, '\\\'').replace(/\\/, '\\\\')
+}
+
+export function clone<T>(val: T) {
+  return JSON.parse(JSON.stringify(val)) as T
+}
+
+export function isArrayPath(p: string) {
+  return /^\[(\d*)\]$/.test(p)
 }

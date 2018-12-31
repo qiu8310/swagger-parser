@@ -2,6 +2,7 @@ import * as warn from 'mora-scripts/libs/sys/warn'
 
 import {FORMAT} from '../config'
 import {mock} from '../services/mock'
+import {Mock} from '../services/types'
 import {Definition} from './Definition'
 import {Type, ObjectType, getDesc} from './Type'
 
@@ -45,6 +46,10 @@ export namespace Operation {
 export class Operation {
   static parseTargetPath = parseTargetPath
   constructor(public opt: Operation.OperationObject) {
+  }
+
+  get key() {
+    return this.opt.tag + '.' + this.opt.id
   }
 
   private mergeParameters() {
@@ -106,9 +111,9 @@ export class Operation {
     return apiRows.join(EOL)
   }
 
-  toMock() {
+  toMock(setting: Mock = {}) {
     const {returns, id} = this.opt
-    let mockStr = mock(returns)
+    let mockStr = mock(setting, returns, this)
     if (!mockStr) return ''
 
     mockStr = mockStr.replace(/\r?\n/g, EOL + TAB) // 换行后面加个 TAB
@@ -163,7 +168,7 @@ export class Operation {
     let parts = parseTargetPath(targetPath)
     try {
       let error = () => {
-        throw new Error(`${this.opt.tag}.${this.opt.id} 无法定位路径 ${targetPath}`)
+        throw new Error(`${this.key} 无法定位路径 ${targetPath}`)
       }
 
       for (let i = 0; i < parts.length; i++) {
@@ -209,10 +214,9 @@ export class Operation {
    * - 'arr[][].code' 忽略数组 arr 中所有数组中的每一项的 code 字段
    */
   omitParameter(location: Operation.IN, targetPath: string) {
-    let id = this.opt.tag + '.' + this.opt.id
     let param = this.opt.parameters.find(p => p.in === location)
     if (!param) {
-      warn(`${id} 中的 ${location} 没有任何参数`)
+      warn(`${this.key} 中的 ${location} 没有任何参数`)
     } else {
       this.operateSubTypeByPath(param.type, targetPath, true)
     }

@@ -1,42 +1,69 @@
+import {range} from 'mora-common/util/math'
 import {snakeCase, capCamelCase} from 'mora-common/util/string'
-import {FORMAT} from '../config'
-import {Type, getDesc} from '../struct/Type'
-import {generateBankNo, generateIdNo} from './inc/faker'
 
-const {EOL, TAB} = FORMAT
+import {Operation} from '../struct/Operation'
+import {Type} from '../struct/Type'
+import {value2js, clone, isArrayPath} from '../util'
+import {ExampleMock} from './ExampleMock'
+import {generateBankNo, generateIdNo} from './inc/faker'
+import {Mock} from './types'
+
 const yod = require('yod-mock')
 
-// @TODO: 支持加一些配置
-export function mock(type: Type, key?: string, prefixes: string[] = [], level = 0): string {
-  let prefix = TAB.repeat(level)
-  if (Type.isArrayType(type)) {
-    let res: string[] = []
-    res.push('[')
-    // 生成 1-2 项数据
-    new Array(yod('@Int(1, 2)')).fill(0)
-      .map(() => mock(type.type, key, [...prefixes, '[]'], level + 1))
-      .forEach(r => res.push(`${prefix}${TAB}${r},`))
-    res.push(`${prefix}]`)
-    return res.join(EOL)
-  } else if (Type.isObjectType(type)) {
-    if (!type.definitions.length) return '{}'
-    let res: string[] = []
-    res.push('{')
-    type.definitions.forEach(d => {
-      res.push(...getDesc(d.desc).map(l => prefix + TAB + l))
-      res.push(`${prefix}${TAB}${d.name}: ${mock(d.type, d.name, [...prefixes, d.name], level + 1)},`)
-    })
-    res.push(`${prefix}}`)
-    return res.join(EOL)
-  } else {
-    // 字符串要加上引号
-    let res = mockBasicWithKey(type.name, key)
-    return typeof res === 'string' ? `'${res}'` : JSON.stringify(res)
-  }
+export interface BasicData {
+  setting: Mock
+  operation: Operation
+  repeat: () => number[]
+  exampleMocks: ExampleMock[]
 }
 
-function mockBasicWithKey(typeName: string, key?: string, exampleValue?: string | number) {
+export function mock(setting: Mock, type: Type, operation: Operation): string {
+  // 解析 repeat 配置
+  let {repeats = {min: 1, max: 2}} = setting.config || {}
+  if (typeof repeats === 'number') repeats = {min: repeats, max: repeats}
+  let yodRepeats = `@Int(${repeats.min}, ${repeats.max})`
+  let repeat = () => range(yod(yodRepeats))
+
+  // 解析 examples 配置
+  let {examples = []} = setting
+  let exampleMocks = examples.map(o => new ExampleMock(o, operation))
+
+  return value2js(mock2value({setting, operation, repeat, exampleMocks}, type))
+}
+
+function mock2value(data: BasicData, type: Type, mockKey: string = '', prefixes: string[] = []): any {
+  let result: any
+  if (Type.isArrayType(type)) {
+    result = data.repeat().map(i => mock2value(data, type.type, mockKey, [...prefixes, `[${i}]`]))
+  } else if (Type.isObjectType(type)) {
+    result = type.definitions.reduce((res, d) => {
+      res[d.name] = mock2value(data, d.type, d.name, [...prefixes, d.name])
+      return res
+    }, {} as any)
+  } else {
+    let em = data.exampleMocks.find(m => m.match(prefixes))
+    if (em) {
+      let {isExample, value} = em.mock(prefixes)
+      if (!isExample) {
+        result = value
+      } else {
+        result = mockBasicWithKey(data, prefixes, type.name, mockKey, value)
+      }
+    } else {
+      result = mockBasicWithKey(data, prefixes, type.name, mockKey)
+    }
+  }
+
+  if (data.setting.generator) result = clone(data.setting.generator(data.operation, prefixes, result))
+
+  return result
+}
+
+function mockBasicWithKey(data: BasicData, prefixes: string[] = [], typeName: string, key?: string, exampleValue?: string | number) {
   if (!key) return mockBasic(typeName)
+
+  const config = data.setting.config || {}
+  const idSeed = data.operation.key + '.' + (prefixes.length ? prefixes.map(t => isArrayPath(t) ? '[]' : t).join('.') : 'id_seed')
 
   const keyParts = snakeCase(key).split('_')
   const lowerKey = key.toLowerCase()
@@ -56,15 +83,17 @@ function mockBasicWithKey(typeName: string, key?: string, exampleValue?: string 
 
   // 支持多种类型的字段
   if (key.endsWith('Id') || key.length === 3 && key.endsWith('id') || equal(['id'])) {
-    if (isNumber) return yod('@Id')
-    else if (isString) return yod('@Id') + ''
+    if (isNumber) return yod(`@Id('${idSeed}')`)
+    else if (isString) return yod(`@Id('${idSeed}')`) + ''
   }
 
   // 单独处理各个类型
   if (isString) {
     const exampleStr = typeof exampleValue === 'string' ? exampleValue : ''
+    const use13 = exampleStr.length === 13 || !exampleStr && config.timestampLength === 13
+
     // 日期(返回时间戳)
-    if (key.endsWith('Time')) return yod('@Date') + (exampleStr.length === 13 ? yod('@Char("number").repeat(3).join("")') : '')
+    if (key.endsWith('Time')) return yod('@Date') + (use13 ? yod('@Char("number").repeat(3).join("")') : '')
     // 身分证
     if (equal(['idNo', 'idCard'])) return mask(generateIdNo(), exampleStr)
     // 银行卡

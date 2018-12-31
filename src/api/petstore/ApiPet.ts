@@ -1,72 +1,10 @@
 import {api} from './base'
-import {pet} from './modal'
+import {Pet} from './modal'
 
 const s = 'ApiPet.'
 
-//#region findPetsByStatus--base auto
-export namespace findPetsByStatus { export type O = pet.findPetsByStatus.O; export type R = pet.findPetsByStatus.R }
-/**
- * Finds Pets by status
- *
- * Multiple status values can be provided with comma separated strings
- */
-export const findPetsByStatus = api<findPetsByStatus.O, findPetsByStatus.R>(s + 'findPetsByStatus', {path: '/pet/findByStatus', query: 'status'})
-//#endregion findPetsByStatus--base
-//#region findPetsByStatus--mock auto
-if (__DEV__) {
-  findPetsByStatus.mock('自动生成', () => {
-    return [
-      {
-        id: 1,
-        category: {
-          id: 2,
-          name: 'pNUByUU8gZ5UT',
-        },
-        name: 'Yai',
-        photoUrls: [
-          'http://llss.qiniudn.com/df99d8b1259f8ac34a9590d7fd83e746d.jpg',
-        ],
-        tags: [
-          {
-            id: 3,
-            name: '6TBsAL43LJBU9e2JCt',
-          },
-        ],
-        /** pet status in the store */
-        status: 'ygDK9zsKXRhtH0bdWOZ',
-      },
-      {
-        id: 4,
-        category: {
-          id: 5,
-          name: 'KjsggkQARV',
-        },
-        name: 'mMBt',
-        photoUrls: [
-          'http://llss.qiniudn.com/db7a67689947e3077c6c34b1f4f86762d.png',
-          'http://llss.qiniudn.com/d0072bb62bbc8a3cc9087518097cad483.png',
-        ],
-        tags: [
-          {
-            id: 6,
-            name: 'lBiFgHK2J2OkC',
-          },
-          {
-            id: 7,
-            name: 'YKjfWqZqgRH78zjIpIyy',
-          },
-        ],
-        /** pet status in the store */
-        status: 'fHWFQjTqNeEivBIqVhU',
-      },
-    ]
-  })
-}
-//#endregion findPetsByStatus--mock
-
-
 //#region getPetById--base auto
-export namespace getPetById { export type O = pet.getPetById.O; export type R = pet.getPetById.R }
+export namespace getPetById { export type O = Pet.getPetById.O; export type R = Pet.getPetById.R }
 /**
  * Find pet by ID
  *
@@ -78,27 +16,24 @@ export const getPetById = api<getPetById.O, getPetById.R>(s + 'getPetById', {pat
 if (__DEV__) {
   getPetById.mock('自动生成', () => {
     return {
-      id: 8,
+      id: 1,
       category: {
-        id: 9,
-        name: 'FZ3jtsv',
+        id: 1,
+        name: 'Pet种类 3',
       },
-      name: 'zMLX',
+      name: '猫852',
       photoUrls: [
+        'http://llss.qiniudn.com/d5641a3454bc3a9d918405e4766077e66.jpg',
+        'http://llss.qiniudn.com/dcb18055d22c6d61cb0b61059faf66a63.png',
         'http://llss.qiniudn.com/de36a4811f982c6f30aedb321d5dec20f.jpg',
       ],
       tags: [
         {
-          id: 10,
-          name: 'MZ7fazX2En',
-        },
-        {
-          id: 11,
-          name: 'Cl6lVY2oM',
+          id: 1,
+          name: 'QBlaI6PcEDY5f',
         },
       ],
-      /** pet status in the store */
-      status: '71atMfNIZV',
+      status: '92FaC',
     }
   })
 }
