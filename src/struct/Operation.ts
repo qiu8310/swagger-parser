@@ -1,3 +1,5 @@
+import * as warn from 'mora-scripts/libs/sys/warn'
+
 import {FORMAT} from '../config'
 import {mock} from '../services/mock'
 import {Definition} from './Definition'
@@ -41,8 +43,8 @@ export namespace Operation {
 }
 
 export class Operation {
+  static parseTargetPath = parseTargetPath
   constructor(public opt: Operation.OperationObject) {
-
   }
 
   private mergeParameters() {
@@ -153,13 +155,136 @@ export class Operation {
     return modal.join(EOL)
   }
 
-  /** 忽略指定位置的参数 */
-  omitParameter(location: Operation.IN, targetPath: string) {}
+  /** 获取指定路径上的 Type */
+  operateSubTypeByPath(type: Type, targetPath: string): Type
+  /** 删除指定路径上的 Type，返回删除了的 Type */
+  operateSubTypeByPath(type: Type, targetPath: string, omit: boolean): Type
+  operateSubTypeByPath(type: Type, targetPath: string, omit?: boolean) {
+    let parts = parseTargetPath(targetPath)
+    try {
+      let error = () => {
+        throw new Error(`${this.opt.tag}.${this.opt.id} 无法定位路径 ${targetPath}`)
+      }
 
-  /** 忽略 response 中的某个字段 */
-  omitResponse(targetPath: string) {}
-  /** 选择 response 中的某个字段来作为新的 response */
-  pickResponse(targetPath: string) {}
-  /** 将旧的 response 对象放入一个新的 response（对象） 中 */
-  wrapResponse(wrapContainer: any) {}
+      for (let i = 0; i < parts.length; i++) {
+        let {key, indexes} = parts[i]
+        for (let index = 0; index < indexes.length; index++) {
+          if (Type.isArrayType(type)) {
+            type = type.type
+          } else {
+            error()
+          }
+        }
+
+        if (Type.isObjectType(type)) {
+          let definition = type.definitions.find(d => d.name === key)
+          if (definition) {
+            if (i === parts.length - 1) {
+              type.definitions = type.definitions.filter(d => d !== definition)
+            }
+            type = definition.type
+          } else {
+            error()
+          }
+        } else {
+          error()
+        }
+      }
+    } catch (e) {
+      warn(e.message)
+    }
+
+    return type
+  }
+
+  /**
+   * 忽略指定位置的参数
+   *
+   * @param targetPath 字段的路径，如下示例：
+   *
+   * - 'code'         忽略对象中的 code 字段
+   * - '[].code'      忽略数组中的每一项中的 code 字段
+   * - 'data.code'    忽略 data.code 字段
+   * - 'arr[].code'   忽略数组 arr 中每一项的 code 字段
+   * - 'arr[][].code' 忽略数组 arr 中所有数组中的每一项的 code 字段
+   */
+  omitParameter(location: Operation.IN, targetPath: string) {
+    let id = this.opt.tag + '.' + this.opt.id
+    let param = this.opt.parameters.find(p => p.in === location)
+    if (!param) {
+      warn(`${id} 中的 ${location} 没有任何参数`)
+    } else {
+      this.operateSubTypeByPath(param.type, targetPath, true)
+    }
+  }
+
+  /**
+   * 忽略 response 中的某个字段
+   *
+   * @param targetPath 字段的路径，如下示例：
+   *
+   * - 'code'         忽略对象中的 code 字段
+   * - '[].code'      忽略数组中的每一项中的 code 字段
+   * - 'data.code'    忽略 data.code 字段
+   * - 'arr[].code'   忽略数组 arr 中每一项的 code 字段
+   * - 'arr[][].code' 忽略数组 arr 中所有数组中的每一项的 code 字段
+   */
+  omitResponse(targetPath: string) {
+    this.operateSubTypeByPath(this.opt.returns, targetPath, true)
+  }
+
+  /**
+   * 选择 response 中的某个字段来作为新的 response
+   * @param targetPath 字段的路径，如下示例：
+   *
+   * - 'code'         忽略对象中的 code 字段
+   * - '[].code'      忽略数组中的每一项中的 code 字段
+   * - 'data.code'    忽略 data.code 字段
+   * - 'arr[].code'   忽略数组 arr 中每一项的 code 字段
+   * - 'arr[][].code' 忽略数组 arr 中所有数组中的每一项的 code 字段
+   */
+  pickResponse(targetPath: string) {
+    let {returns} = this.opt
+    let type = this.operateSubTypeByPath(returns, targetPath)
+    type.desc = returns.desc
+    this.opt.returns = type
+    return type
+  }
+}
+
+function parseTargetPath(targetPath: string) {
+  const res: Array<{indexes: number[], key: string}> = []
+  const regWithKey = /^(\w+)\[\s*(\d*)\s*\](.*)$/
+  const regWithoutKey = /^\[\s*(\d*)\s*\](.*)$/
+  const toIndex = (s: string) => s ? parseInt(s, 10) : -1
+
+  let indexes: number[] = []
+  targetPath.split('.').forEach(key => {
+    if (regWithKey.test(key)) {
+      res.push({key: RegExp.$1, indexes})
+      indexes = []
+      indexes.push(toIndex(RegExp.$2))
+      key = RegExp.$3
+    } else if (regWithoutKey.test(key)) {
+      indexes.push(toIndex(RegExp.$1))
+      key = RegExp.$2
+    } else {
+      res.push({key, indexes})
+      indexes = []
+      key = ''
+    }
+
+    while (key) {
+      if (regWithoutKey.test(key)) {
+        indexes.push(toIndex(RegExp.$1))
+        key = RegExp.$2
+      } else {
+        throw new Error(`无法解析路径 "${targetPath}"`)
+      }
+    }
+  })
+
+  if (indexes.length) throw new Error(`路径 "${targetPath}" 最后一个不能是数组`)
+
+  return res
 }

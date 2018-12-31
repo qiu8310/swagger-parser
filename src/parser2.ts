@@ -173,11 +173,14 @@ export function parser2(schema: swagger2.Schema, options: parser2.Options = {}) 
     })
   }
 
+  let invalidTagNames: string[] = []
   eachObject(tags, (tagName) => {
-    if (!isValidTagName(tagName)) {
-      throw new Error(`Tag 名称（"${tagName}"）需要是纯英文的，请使用 tagNameMap 将其转化成英文名`)
-    }
+    if (!isValidTagName(tagName)) invalidTagNames.push(tagName)
   })
+  if (invalidTagNames.length) {
+    throw new Error(`Tag 名称（${invalidTagNames.join(', ')}）需要是纯英文的，请使用 tagNameMap 将其转化成英文名`)
+  }
+
   operations.forEach(op => options.operationMap && options.operationMap(op, op.opt.tag, op.opt.id))
   return tags
 }

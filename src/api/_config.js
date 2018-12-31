@@ -25,6 +25,13 @@ const configs = [
     type: 'fe',
     json: 'example-json/daybreak.json',
     outputDir: "src/api/daybreak",
+    operationMap(api) {
+      api.omitParameter('body', 'userId')
+
+      api.omitResponse('resultCode')
+      api.omitResponse('resultMessage')
+      api.omitResponse('respErrorData')
+    }
   },
   // {
   //   type: 'fe',
