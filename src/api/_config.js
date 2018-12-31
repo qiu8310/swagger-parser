@@ -44,27 +44,6 @@ const configs = [
     }
   },
   {
-    name: 'instal',
-    json: 'example-json/instal.json',
-    operationMap(api) {
-      api.omitParameter('body', 'userId', true)
-        .omitResponse('respMsg', true)
-        .omitResponse('respCode', true)
-        .omitResponse('respErrorData', true)
-    }
-  },
-  {
-    name: 'daybreak',
-    type: 'fe',
-    json: 'example-json/daybreak.json',
-    operationMap(api) {
-      api.omitParameter('body', 'userId', true)
-        .omitResponse('resultCode', true)
-        .omitResponse('resultMessage', true)
-        .omitResponse('respErrorData', true)
-    }
-  },
-  {
     name: 'credit',
     type: 'fe',
     json: 'example-json/credit.json',
@@ -83,6 +62,27 @@ const configs = [
         {match: 'term | terms',   value: [3, 6, 9, 12]},
         {match: 'validThru',      value: '{@Date("MMDD", 10)}'}
       ]
+    }
+  },
+  {
+    name: 'instal',
+    json: 'example-json/instal.json',
+    operationMap(api) {
+      api.omitParameter('body', 'userId', true)
+        .omitResponse('respMsg', true)
+        .omitResponse('respCode', true)
+        .omitResponse('respErrorData', true)
+    }
+  },
+  {
+    name: 'daybreak',
+    type: 'fe',
+    json: 'example-json/daybreak.json',
+    operationMap(api) {
+      api.omitParameter('body', 'userId', true)
+        .omitResponse('resultCode', true)
+        .omitResponse('resultMessage', true)
+        .omitResponse('respErrorData', true)
     }
   },
 ]

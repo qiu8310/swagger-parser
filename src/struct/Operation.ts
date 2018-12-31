@@ -87,7 +87,7 @@ export class Operation {
     if (method !== config.baseMethod) settingRows.push(`method: '${method}'`)
     if (parameters.find(p => p.in === 'formData')) settingRows.push(`http: {headers: {'Content-Type': 'application/x-www-form-urlencoded'}}`)
     parameters.forEach(p => {
-      if (Type.isObjectType(p.type)) {
+      if (Type.isObjectType(p.type) && p.type.definitions.length) {
         let str = p.type.definitions.map(d => d.name).join('&')
         if (p.in === 'formData' || p.in === 'body') settingRows.push(`body: '${str}'`)
         else if (p.in === 'header') settingRows.push(`header: '${str}'`)
