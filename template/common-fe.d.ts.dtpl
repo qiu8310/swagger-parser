@@ -1,2 +1,2 @@
 import { Application, RequestConfig } from '@hujiang/foe-api';
-export declare function createApplication(opts?: RequestConfig.Init): Application;
+export declare function createApplication(type: string, opts?: RequestConfig.Init): Application;

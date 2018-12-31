@@ -27,7 +27,7 @@ export async function generate(cliOpts: {name?: string[]} = {}) {
 
     const tpl = (...name: string[]) => path.join(root, 'template', ...name)
     const out = (...name: string[]) => path.resolve(c.outputDir, ...name)
-    const data = {...getRenderData(json, tags), type}
+    const data = {...getRenderData(json, tags), type, name: c.name}
 
     renderWhenNotExist(tpl(`common-${type}`), out('..', `common-${type}`), data, language)
     renderWhenNotExist(tpl('base'), out('base'), data, language)

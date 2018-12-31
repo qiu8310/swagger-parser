@@ -10,7 +10,9 @@ export namespace getPetById { export type O = Pet.getPetById.O; export type R = 
  *
  * Returns a single pet
  *
+ *
  * **TAG:** pet； &nbsp;&nbsp; **PATH:** /pet/{petId}；
+ *
  * @see [线上文档](https://petstore.swagger.io/#/pet/getPetById)
  */
 export const getPetById = api<getPetById.O, getPetById.R>(s + 'getPetById', {path: '/pet/:petId'})
@@ -24,21 +26,21 @@ if (__DEV__) {
         id: 1,
         name: 'Pet种类 1',
       },
-      name: '猫822',
+      name: '猫710',
       photoUrls: [
-        'http://llss.qiniudn.com/dde050ca7fdf7a02f8b0474d9122455cc.png',
-        'http://llss.qiniudn.com/dd9cb918ac624e719e173833423d8fc6c.jpg',
-        'http://llss.qiniudn.com/d1eef203c492adee12aa9a5cad5ec7c5a.png',
-        'http://llss.qiniudn.com/dd9cb918ac624e719e173833423d8fc6c.jpg',
+        'http://llss.qiniudn.com/df99d8b1259f8ac34a9590d7fd83e746d.jpg',
+        'http://llss.qiniudn.com/dcaca24a3ea9f4bf88b59e17650ed2b78.png',
+        'http://llss.qiniudn.com/de18381409caf8784cbc717c975353060.jpg',
       ],
       tags: [
         {
           id: 1,
-          name: '0dhOBMU',
+          name: 'W9VUoJV1m23Icvk',
         },
       ],
-      status: 'IT3G3g5q5GVqLxvMhB',
+      status: 'available',
     }
   })
 }
 //#endregion getPetById--mock
+

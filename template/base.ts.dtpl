@@ -1,7 +1,7 @@
 import {Application, RequestConfig} from '@hujiang/foe-api'
 import {createApplication} from '../common-${type}'
 
-export const app = createApplication({
+export const app = createApplication('${name}', {
   basePath: '${basePath}',
   method: '${baseMethod}',
 })

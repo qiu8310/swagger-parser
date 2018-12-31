@@ -57,16 +57,19 @@ export function value2js(value: any, level = 0) {
   let p = TAB.repeat(level)
 
   if (Array.isArray(value)) {
+    if (!value.length) return '[]'
     let res: string[] = ['[']
     res.push(...value.map(v => `${p}${TAB}${value2js(v, level + 1)},`))
     res.push(p + ']')
     return res.join(EOL)
   } else if (typeof value === 'object') {
+    let entries = Object.entries(value)
+    if (!entries.length) return '{}'
     let res: string[] = ['{']
     // key 可能需要加上引用
     let addQuote = Object.keys(value).some(k => !/^\w+$/.test(k))
     let quote = addQuote ? '\'' : ''
-    res.push(...Object.entries(value).map(([key, val]) => `${p}${TAB}${quote}${key}${quote}: ${value2js(val, level + 1)},`))
+    res.push(...entries.map(([key, val]) => `${p}${TAB}${quote}${key}${quote}: ${value2js(val, level + 1)},`))
     res.push(p + '}')
     return res.join(EOL)
   } else if (typeof value === 'string') {
@@ -76,8 +79,8 @@ export function value2js(value: any, level = 0) {
   }
 }
 
-function escape(str: string) {
-  return str.replace(/'/g, '\\\'').replace(/\\/, '\\\\')
+export function escape(str: string) {
+  return str.replace(/'/g, '\\\'')
 }
 
 export function clone<T>(val: T) {
@@ -86,4 +89,20 @@ export function clone<T>(val: T) {
 
 export function isArrayPath(p: string) {
   return /^\[(\d*)\]$/.test(p)
+}
+
+
+export function getDocLines(desc: string | undefined) {
+  if (!desc || !desc.trim()) return []
+  let lines = desc.split(/\r?\n/).map(l => l.trimRight())
+  if (lines.length === 1) return [`/** ${lines[0]} */`]
+
+  lines = lines.map(l => {
+    if (l.trim()) {
+      return ' * ' + l.trimRight()
+    } else {
+      return ' *'
+    }
+  })
+  return ['/**', ...lines, ' */']
 }

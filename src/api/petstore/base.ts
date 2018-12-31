@@ -1,7 +1,7 @@
 import {Application, RequestConfig} from '@hujiang/foe-api'
 import {createApplication} from '../common-fe'
 
-export const app = createApplication({
+export const app = createApplication('petstore', {
   basePath: '/v2',
   method: 'GET',
 })

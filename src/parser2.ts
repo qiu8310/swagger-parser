@@ -154,7 +154,7 @@ export function parser2(schema: swagger2.Schema, options: parser2.Options = {}) 
           if (r.schema) {
             returnType = getSchemaObjectType(schema, r.schema, true)
           }
-          if (r.description) returnType.desc = r.description
+          returnType.desc.push(r.description)
         }
         operation.returns = returnType
 
@@ -204,20 +204,17 @@ function parseOperationDesc(operationObject: swagger2.OperationObject) {
 }
 
 
-function parse2definition(param: swagger2.SchemaObject | swagger2.RestParameterObject, def: Definition) {
-  let desc = new Desc()
-  desc.push(param.description)
+function parse2definition(param: {enum?: any[], description?: string, default?: any}, def: Definition) {
+  def.desc.push(param.description)
 
   if (param.enum) {
-    def.enum = param.enum.map(a => JSON.stringify(a))
-    desc.push(`可选值： ${def.enum.join(' | ')}`)
+    def.enum = param.enum
+    def.desc.push(`可选值： ${def.enum.join(' | ')}`)
   }
   if (param.hasOwnProperty('default')) {
     def.defaultValue = JSON.stringify(param.default)
-    desc.push(`默认值： ${def.defaultValue}`)
+    def.desc.push(`默认值： ${def.defaultValue}`)
   }
-
-  desc.assignTo(def)
 }
 
 function parseOperationParameters(schema: swagger2.Schema, operationParameters: swagger2.ParameterObject[]): Operation.ParameterObject[] {
@@ -232,7 +229,7 @@ function parseOperationParameters(schema: swagger2.Schema, operationParameters: 
   operationParameters.forEach(p => {
     if (p.in === 'body') {
       const type = getSchemaObjectType(schema, p.schema)
-      if (!type.desc && p.description) type.desc = p.description
+      type.desc.push(p.description)
       const found = res.find(r => r.in === p.in)
       const foundObj: Operation.ParameterObject = !found ? {in: p.in, type} : found
       if (found) foundObj.type = type
@@ -276,8 +273,7 @@ function getSchemaObjectType(schema: swagger2.Schema, obj: swagger2.SchemaObject
     rtn = new ObjectType(defs)
     eachObject(mergedObj.properties || {}, (propKey, propValue) => {
       const def = new Definition(propKey, getSchemaObjectType(schema, propValue, defaultRequired))
-      if (propValue.description) def.desc = propValue.description
-      if (propValue.enum) def.enum = propValue.enum
+      parse2definition(propValue, def)
       def.required = defaultRequired && !required.length ? defaultRequired : required.includes(propKey)
       defs.push(def)
     })
@@ -285,7 +281,7 @@ function getSchemaObjectType(schema: swagger2.Schema, obj: swagger2.SchemaObject
     let typeArr = Array.isArray(type) ? type : [type]
     rtn = new Type(typeArr.join(' | '))
   }
-  if (mergedObj.description) rtn.desc = mergedObj.description
+  rtn.desc.push(mergedObj.description)
   return rtn
 }
 

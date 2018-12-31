@@ -89,25 +89,26 @@ function mockBasicWithKey(data: BasicData, prefixes: string[] = [], typeName: st
    */
   const equal = (keys: string[]) => keys.some(k => lowerKey === k.toLowerCase() || key.endsWith(capCamelCase(k)))
 
-  // 支持多种类型的字段
-  if (!exampleValue) {
-    if (key.endsWith('Id') || key.length === 3 && key.endsWith('id') || equal(['id'])) {
-      if (isNumber) return yod(`@Id('${idSeed}')`)
-      else if (isString) return yod(`@Id('${idSeed}')`) + ''
-    }
-  }
-
   // 单独处理各个类型
   if (isString) {
     const exampleStr = typeof exampleValue === 'string' ? exampleValue : ''
     const use10 = exampleStr.length === 10 || !exampleStr && config.timestampLength === 10
 
     // 日期(返回时间戳)
-    if (key.endsWith('Time')) return yod('@Date') + (use10 ? '' : yod('@Char("number").repeat(3).join("")'))
+    if (key.endsWith('Time')) return yod('@Date') + (use10 ? '' : mockNumber(3))
     // 身分证
     if (equal(['idNo', 'idCard'])) return mask(generateIdNo(), exampleStr)
     // 银行卡
-    if (equal(['bankNo', 'bankCard', 'bankAccountNo'])) return mask(generateBankNo(), exampleStr)
+    if (equal(['bankNo', 'bankCard', 'bankCardNo', 'bankAccountNo'])) return mask(generateBankNo(), exampleStr)
+    if (equal(['bankName', 'bankCardName', 'bankAccountName'])) return sample(['农业银行', '交通银行', '中国银行', '建设银行'])
+
+    // 内部的一些字段
+    if (equal(['instalId'])) return 'FQ' + mockNumber('20181214152732062100'.length)
+    if (equal(['payId'])) return mockNumber('21031001000020181231213126834388'.length)
+    if (equal(['payOrderId'])) return mockNumber('21031001000020181214152728823429'.length)
+    if (equal(['paySeqNo'])) return mockNumber('20181214152732823430'.length)
+    if (equal(['merchantSequence'])) return mockNumber('127065636'.length)
+
     if (equal(['userName', 'realName', 'accountName'])) return yod('@ChineseName')
     if (equal(['firstName'])) return yod('@FirstName')
     if (equal(['lastName'])) return yod('@LastName')
@@ -125,6 +126,14 @@ function mockBasicWithKey(data: BasicData, prefixes: string[] = [], typeName: st
     if (contain(['address'])) return yod(`@Province @CW.repeat(5, 15).join("")`)
     if (contain(['text', 'title'])) return yod('@CW.repeat(15, 60).join("")')
     if (contain(['comment'])) return yod('@Comment')
+  }
+
+  // 支持多种类型的字段
+  if (!exampleValue) {
+    if (key.endsWith('Id') || key.length === 3 && key.endsWith('id') || equal(['id'])) {
+      if (isNumber) return yod(`@Id('${idSeed}')`)
+      else if (isString) return yod(`@Id('${idSeed}')`) + ''
+    }
   }
 
   if (exampleValue != null) {
@@ -158,6 +167,10 @@ function mockBasic(typeName: string) {
   else if (typeName === 'any') return {}
   else if (typeName === 'any[]') return []
   else throw new Error(`不支持 mock 的数据类型 ${typeName}`)
+}
+
+function mockNumber(len: number) {
+  return yod(`@Char("number").repeat(${len}).join("")`)
 }
 
 function mask(str: string, exampleStr: string) {

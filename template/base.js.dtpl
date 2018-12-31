@@ -1,5 +1,5 @@
 const common = require('../common-${type}')
-exports.app = common.createApplication({
+exports.app = common.createApplication('${name}', {
   basePath: '${basePath}',
   method: '${baseMethod}',
 })

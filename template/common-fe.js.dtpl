@@ -12,7 +12,7 @@ const defaultApplicationOpts = {
   },
 }
 
-function createApplication(opts) {
+function createApplication(type, opts) {
   opts = Object.assign({}, defaultApplicationOpts, opts)
   let app = new foeApi.Application(opts)
   app.use(

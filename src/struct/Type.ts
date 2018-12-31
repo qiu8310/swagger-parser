@@ -21,7 +21,7 @@ export class Type {
   static isNotSimpleType = isNotSimpleType
 
   /** 类型描述 */
-  desc?: string
+  desc = new Desc()
 
   /**
    * @param name 类型名
@@ -45,10 +45,7 @@ export class ObjectType extends Type {
   }
 
   merge(type: ObjectType) {
-    let desc = new Desc()
-    desc.push(this.desc)
-    desc.push(type.desc)
-    desc.assignTo(this)
+    this.desc.merge(type.desc)
 
     type.definitions.forEach(d => {
       let found = this.definitions.find(f => f.name === d.name)
@@ -67,11 +64,11 @@ export class ObjectType extends Type {
   }
 
   toTS(name: string, container: string[] = []) {
-    const rows = getDesc(this.desc)
+    const rows = this.desc.toDocLines()
 
     rows.push(`export interface ${name} {`)
     this.definitions.forEach(d => {
-      rows.push(...prefix(getDesc(d.desc)))
+      rows.push(...prefix(d.desc.toDocLines()))
 
       let typeName = capCamelCase(name + ' prop ' + d.name)
       if (d.enum && d.enum.length) {
@@ -98,7 +95,7 @@ export class ArrayType extends Type {
   }
 
   toTS(name: string, container: string[] = []) {
-    const rows = getDesc(this.desc)
+    const rows = this.desc.toDocLines()
     let subTypeName = capCamelCase(name + 'SubItem')
 
     if (isNotSimpleType(this.type)) {
@@ -112,22 +109,6 @@ export class ArrayType extends Type {
 
     return container
   }
-}
-
-
-export function getDesc(desc: string | undefined) {
-  if (!desc || !desc.trim()) return []
-  let lines = desc.split(/\r?\n/).map(l => l.trimRight())
-  if (lines.length === 1) return [`/** ${lines[0]} */`]
-
-  lines = lines.map(l => {
-    if (l.trim()) {
-      return ' * ' + l.trimRight()
-    } else {
-      return ' *'
-    }
-  })
-  return ['/**', ...lines, ' */']
 }
 
 function prefix(lines: string[], tabCount = 1) {

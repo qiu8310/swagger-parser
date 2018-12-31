@@ -1,8 +1,9 @@
+import {Desc} from './Desc'
 import {Type} from './Type'
 
 export class Definition {
   /** 字段描述 */
-  desc?: string
+  desc = new Desc()
 
   /** 可选值 */
   enum?: string[] | number[]

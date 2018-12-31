@@ -4,7 +4,8 @@ import {FORMAT} from '../config'
 import {mock} from '../services/mock'
 import {Mock} from '../services/types'
 import {Definition} from './Definition'
-import {Type, ObjectType, getDesc} from './Type'
+import {Desc} from './Desc'
+import {Type, ObjectType} from './Type'
 
 const {EOL, TAB} = FORMAT
 
@@ -97,9 +98,10 @@ export class Operation {
     const apiRows: string[] = []
 
     let {opt} = this
-    let doc: string[] = []
-    if (desc) doc.push(desc)
+    let doc = new Desc()
+    doc.push(desc)
     doc.push(`${EOL}**TAG:** ${opt.rawTag}； &nbsp;&nbsp; **PATH:** ${opt.path}；`)
+
     if (config.docPrefix) {
       doc.push(`@see [线上文档](${config.docPrefix}/${this.opt.rawTag}/${this.opt.rawId})`)
     }
@@ -108,12 +110,12 @@ export class Operation {
     if (config.language === 'js') {
       let ns = `@type {import("@hujiang/foe-api").Application.ApiReturnsWithData<import("./modal").${tag}.${id}.O, import("./modal").${tag}.${id}.R, api.FilterMock<import("./modal").${tag}.${id}.R>>}`
       doc.push(ns)
-      apiRows.push(...getDesc(doc.join(EOL)))
+      apiRows.push(...doc.toDocLines())
       apiRows.push(`export const ${id} = api(s + '${id}', {${setting}})`)
     } else {
       let nsOpt = hasOptions ? ` export type O = ${tag}.${id}.O;` : ''
       let ns = `export namespace ${id} {${nsOpt} export type R = ${tag}.${id}.R }`
-      apiRows.push(ns, ...getDesc(doc.join(EOL)))
+      apiRows.push(ns, ...doc.toDocLines())
       if (hasOptions) {
         apiRows.push(`export const ${id} = api<${id}.O, ${id}.R>(s + '${id}', {${setting}})`)
       } else {

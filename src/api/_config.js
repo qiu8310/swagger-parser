@@ -4,51 +4,48 @@
  * @type import('../services/').Config[]
  */
 const configs = [
-  // {
-  //   name: 'petstore',
-  //   type: 'fe',
-  //   language: 'ts',
-  //   // json: "http://192.168.35.74:9560/v2/api-docs",
-  //   json: 'example-json/petstore.json',
-  //   docPrefix: 'https://petstore.swagger.io/#',
-  //   tagNameMap: (name) => {
-  //     return name === 'pet'
-  //   },
-  //   apiNameMap: (name) => {
-  //     return name.startsWith('getPet')
-  //   },
-  //   operationMap: (operation, tagName, apiName) => {
-
-  //   },
-  //   mock: {
-  //     config: {
-  //       repeats: {min: 2, max: 5}
-  //     },
-  //     examples: [
-  //       {
-  //         match: 'category.name@Pet',
-  //         value: ['Pet种类 1', 'Pet种类 2', 'Pet种类 3']
-  //       },
-  //       {
-  //         exect: true,
-  //         match: '^nam@Pet',
-  //         value: (op, keys) => {
-  //           return '猫' + Math.random().toFixed(16).substr(-3)
-  //         }
-  //       }
-  //     ],
-  //     generator(op, keys, mock) {
-  //       // keys 长度为 0 表示最外层的数据
-  //       if (op.key === 'Pet.getPetById' && keys.length === 0) {
-  //         mock.tags.length = 1
-  //       }
-  //       return mock
-  //     }
-  //   }
-  // },
   {
-    name: 'hujiang',
-    json: 'example-json/hujiang.json',
+    name: 'petstore',
+    type: 'fe',
+    language: 'ts',
+    // json: "http://192.168.35.74:9560/v2/api-docs",
+    json: 'example-json/petstore.json',
+    docPrefix: 'https://petstore.swagger.io/#',
+    tagNameMap: (name) => {
+      return name === 'pet'
+    },
+    apiNameMap: (name) => {
+      return name.startsWith('getPet')
+    },
+    mock: {
+      config: {
+        repeats: {min: 2, max: 5}
+      },
+      examples: [
+        {
+          match: 'category.name@Pet',
+          value: ['Pet种类 1', 'Pet种类 2', 'Pet种类 3']
+        },
+        {
+          exect: true,
+          match: '^nam@Pet',
+          value: (op, keys) => {
+            return '猫' + Math.random().toFixed(16).substr(-3)
+          }
+        }
+      ],
+      generator(op, keys, mock) {
+        // keys 长度为 0 表示最外层的数据
+        if (op.key === 'Pet.getPetById' && keys.length === 0) {
+          mock.tags.length = 1
+        }
+        return mock
+      }
+    }
+  },
+  {
+    name: 'instal',
+    json: 'example-json/instal.json',
     operationMap(api) {
       api.omitParameter('body', 'userId', true)
         .omitResponse('respMsg', true)
@@ -71,20 +68,17 @@ const configs = [
     name: 'credit',
     type: 'fe',
     json: 'example-json/credit.json',
-    apiNameMap: n => n === 'supportedBanks',
+    operationMap(api) {
+      api.omitParameter('body', 'userId', true)
+        .omitResponse('escapeCode', true)
+        .omitResponse('escapeMessage', true)
+    },
     mock: {
       examples: [
-        {match: 'instalId',       value: 'FQ20181214152732062100'},
-        {match: 'payOrderId',     value: '21031001000020181214152728823429'},
-        {match: 'paySeqNo',       value: '20181214152732823430'},
         {match: 'cvv2',           value: '123'},
         {match: 'productCode',    value: ['CREDIT_INSTALMENT']},
         {match: 'merchantCode',   value: ['hj']},
-        {match: 'bankName',       value: ['农业银行', '交通银行', '中国银行', '建设银行']},
         {match: 'bankAcronym',    value: ['ABC', 'BCOM', 'BOC', 'CCB']},
-        {match: 'escapeCode',     value: '3456'},
-        {match: 'escapeMessage',  value: '{@CS}'},
-        {match: 'message',        value: '{@CS}'},
         {match: 'supportedTerms', value: [[3, 6], [3, 6, 9], [3, 6, 9, 12]]},
         {match: 'term | terms',   value: [3, 6, 9, 12]},
         {match: 'validThru',      value: '{@Date("MMDD", 10)}'}

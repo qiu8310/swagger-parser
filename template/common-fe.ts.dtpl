@@ -13,7 +13,7 @@ const defaultApplicationOpts: RequestConfig.Init = {
   },
 }
 
-export function createApplication(opts?: RequestConfig.Init) {
+export function createApplication(type: string, opts?: RequestConfig.Init) {
   opts = {...defaultApplicationOpts, ...opts}
   let app = new Application(opts)
 

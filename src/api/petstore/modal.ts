@@ -1,3 +1,4 @@
+// tslint:disable
 import {api} from './base'
 
 export namespace Pet {
@@ -17,6 +18,7 @@ export namespace Pet {
       name: string
     }
     export type ReturnsPropTags = ReturnsPropTagsSubItem[]
+    export type ReturnsPropStatus = "available" | "pending" | "sold"
     /** successful operation */
     export interface Returns {
       id?: number
@@ -24,8 +26,12 @@ export namespace Pet {
       name: string
       photoUrls: ReturnsPropPhotoUrls
       tags?: ReturnsPropTags
-      /** pet status in the store */
-      status?: string
+      /**
+       * pet status in the store
+       *
+       * 可选值： available | pending | sold
+       */
+      status?: ReturnsPropStatus
     }
     export interface R extends api.FilterResponse<Returns> {}
   }
