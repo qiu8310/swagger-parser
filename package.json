@@ -25,6 +25,6 @@
     "got": "9.5.0",
     "mora-common": "1.0.22",
     "mora-scripts": "1.6.35",
-    "yod-mock": "^0.3.1"
+    "yod-mock": "0.3.1"
   }
 }

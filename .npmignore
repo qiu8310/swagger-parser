@@ -1,0 +1,7 @@
+src
+dist/api
+types
+tslint.json
+tsconfig.json
+example-json
+.vscode
