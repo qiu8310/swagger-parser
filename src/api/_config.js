@@ -67,18 +67,30 @@ const configs = [
         .omitResponse('respErrorData', true)
     }
   },
-  // {
-  //   name: 'credit',
-  //   type: 'fe',
-  //   json: 'example-json/credit.json',
-  //   tagNameMap: (name) => {
-  //     return name === 'order'
-  //   },
-  //   apiNameMap: (name) => {
-  //     return name.startsWith('queryPlan')
-  //     // return name === 'createUser'
-  //   },
-  // },
+  {
+    name: 'credit',
+    type: 'fe',
+    json: 'example-json/credit.json',
+    apiNameMap: n => n === 'supportedBanks',
+    mock: {
+      examples: [
+        {match: 'instalId',       value: 'FQ20181214152732062100'},
+        {match: 'payOrderId',     value: '21031001000020181214152728823429'},
+        {match: 'paySeqNo',       value: '20181214152732823430'},
+        {match: 'cvv2',           value: '123'},
+        {match: 'productCode',    value: ['CREDIT_INSTALMENT']},
+        {match: 'merchantCode',   value: ['hj']},
+        {match: 'bankName',       value: ['农业银行', '交通银行', '中国银行', '建设银行']},
+        {match: 'bankAcronym',    value: ['ABC', 'BCOM', 'BOC', 'CCB']},
+        {match: 'escapeCode',     value: '3456'},
+        {match: 'escapeMessage',  value: '{@CS}'},
+        {match: 'message',        value: '{@CS}'},
+        {match: 'supportedTerms', value: [[3, 6], [3, 6, 9], [3, 6, 9, 12]]},
+        {match: 'term | terms',   value: [3, 6, 9, 12]},
+        {match: 'validThru',      value: '{@Date("MMDD", 10)}'}
+      ]
+    }
+  },
 ]
 
 module.exports = configs

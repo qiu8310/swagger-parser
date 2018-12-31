@@ -3,3 +3,4 @@ example-json/
 dist/
 src/api/daybreak
 src/api/hujiang
+src/api/credit

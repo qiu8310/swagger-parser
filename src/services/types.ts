@@ -26,8 +26,11 @@ export interface Mock {
      * 如果此值不为 true，则表示只会匹配最后的字段，如 `name` 会和 `category.name` 及 `tag.name`、`name` 都匹配成功
      */
     exect?: boolean
+
+    /** 是否只匹配叶子节点 */
+    leaf?: boolean
+
     /**
-     * 只会匹配叶子节点
      *
      * * match 的规则
      *  - `name@Pet#getPet` 标签名为 Pet，函数名为 getPetById 下的 name 字段

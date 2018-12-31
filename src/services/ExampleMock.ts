@@ -31,15 +31,22 @@ const FLAG_MAP: {[key: string]: ExampleMock.Flag} = {'~': 'include', '^': 'start
 
 export class ExampleMock {
   // @ts-ignore
-  match: (prefixes: string[]) => boolean
+  private internalMatch: (prefixes: string[]) => boolean
+  /**
+   * @param isLeaf 是否是叶子节点
+   */
+  match(prefixes: string[], isLeaf: boolean) {
+    if (this.opts.leaf && !isLeaf) return false
+    return this.internalMatch(prefixes)
+  }
 
   constructor(private opts: Required<Mock>['examples'][0], public operation: Operation) {
     let m = this.opts.match
     if (typeof m === 'function') {
       let fn = m
-      this.match = (prefixes: string[]) => fn(this.operation, prefixes)
+      this.internalMatch = (prefixes: string[]) => fn(this.operation, prefixes)
     } else if (typeof m === 'string') {
-      this.match = this.generateMatchByStr(m)
+      this.internalMatch = this.generateMatchByStr(m)
     }
   }
 

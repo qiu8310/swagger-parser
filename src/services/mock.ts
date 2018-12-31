@@ -1,3 +1,4 @@
+import {sample} from 'mora-common/util/array'
 import {range} from 'mora-common/util/math'
 import {snakeCase, capCamelCase} from 'mora-common/util/string'
 
@@ -33,26 +34,33 @@ export function mock(setting: Mock, type: Type, operation: Operation): string {
 
 function mock2value(data: BasicData, type: Type, mockKey: string = '', prefixes: string[] = []): any {
   let result: any
-  if (Type.isArrayType(type)) {
-    result = data.repeat().map(i => mock2value(data, type.type, mockKey, [...prefixes, `[${i}]`]))
-  } else if (Type.isObjectType(type)) {
-    result = type.definitions.reduce((res, d) => {
-      res[d.name] = mock2value(data, d.type, d.name, [...prefixes, d.name])
-      return res
-    }, {} as any)
-  } else {
-    let em = data.exampleMocks.find(m => m.match(prefixes))
-    if (em) {
-      let {isExample, value} = em.mock(prefixes)
-      if (!isExample) {
-        result = value
-      } else {
-        result = mockBasicWithKey(data, prefixes, type.name, mockKey, value)
-      }
+  let emRes: null | ReturnType<ExampleMock['mock']> = null
+
+  let em = data.exampleMocks.find(m => m.match(prefixes, !Type.isNotSimpleType(type)))
+  if (em) {
+    emRes = em.mock(prefixes)
+    if (!emRes.isExample) result = emRes.value
+  }
+
+  if (typeof result === 'undefined') {
+    if (Type.isArrayType(type)) {
+      result = data.repeat().map(i => mock2value(data, type.type, mockKey, [...prefixes, `[${i}]`]))
+    } else if (Type.isObjectType(type)) {
+      result = type.definitions.reduce((res, d) => {
+        // 有可选值则使用可选值
+        if (d.enum) res[d.name] = sample(d.enum as any[])
+        else res[d.name] = mock2value(data, d.type, d.name, [...prefixes, d.name])
+        return res
+      }, {} as any)
     } else {
-      result = mockBasicWithKey(data, prefixes, type.name, mockKey)
+      if (emRes && emRes.isExample) {
+        result = mockBasicWithKey(data, prefixes, type.name, mockKey, emRes.value)
+      } else {
+        result = mockBasicWithKey(data, prefixes, type.name, mockKey)
+      }
     }
   }
+
 
   if (data.setting.generator) result = clone(data.setting.generator(data.operation, prefixes, result))
 
@@ -63,7 +71,7 @@ function mockBasicWithKey(data: BasicData, prefixes: string[] = [], typeName: st
   if (!key) return mockBasic(typeName)
 
   const config = data.setting.config || {}
-  const idSeed = data.operation.key + '.' + (prefixes.length ? prefixes.map(t => isArrayPath(t) ? '[]' : t).join('.') : 'id_seed')
+  const idSeed = prefixes.length ? prefixes.map(t => isArrayPath(t) ? '[]' : t).join('.') : 'id_seed'
 
   const keyParts = snakeCase(key).split('_')
   const lowerKey = key.toLowerCase()
@@ -82,18 +90,20 @@ function mockBasicWithKey(data: BasicData, prefixes: string[] = [], typeName: st
   const equal = (keys: string[]) => keys.some(k => lowerKey === k.toLowerCase() || key.endsWith(capCamelCase(k)))
 
   // 支持多种类型的字段
-  if (key.endsWith('Id') || key.length === 3 && key.endsWith('id') || equal(['id'])) {
-    if (isNumber) return yod(`@Id('${idSeed}')`)
-    else if (isString) return yod(`@Id('${idSeed}')`) + ''
+  if (!exampleValue) {
+    if (key.endsWith('Id') || key.length === 3 && key.endsWith('id') || equal(['id'])) {
+      if (isNumber) return yod(`@Id('${idSeed}')`)
+      else if (isString) return yod(`@Id('${idSeed}')`) + ''
+    }
   }
 
   // 单独处理各个类型
   if (isString) {
     const exampleStr = typeof exampleValue === 'string' ? exampleValue : ''
-    const use13 = exampleStr.length === 13 || !exampleStr && config.timestampLength === 13
+    const use10 = exampleStr.length === 10 || !exampleStr && config.timestampLength === 10
 
     // 日期(返回时间戳)
-    if (key.endsWith('Time')) return yod('@Date') + (use13 ? yod('@Char("number").repeat(3).join("")') : '')
+    if (key.endsWith('Time')) return yod('@Date') + (use10 ? '' : yod('@Char("number").repeat(3).join("")'))
     // 身分证
     if (equal(['idNo', 'idCard'])) return mask(generateIdNo(), exampleStr)
     // 银行卡

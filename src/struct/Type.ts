@@ -75,7 +75,8 @@ export class ObjectType extends Type {
 
       let typeName = capCamelCase(name + ' prop ' + d.name)
       if (d.enum && d.enum.length) {
-        container.push(`export type ${typeName} = ${d.enum.join(' | ')}`)
+        // @ts-ignore
+        container.push(`export type ${typeName} = ${d.enum.map(e => JSON.stringify(e)).join(' | ')}`)
       } else if (isNotSimpleType(d.type)) {
         d.type.toTS(typeName, container)
       } else {
