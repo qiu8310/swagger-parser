@@ -1,6 +1,9 @@
 {
-  "name": "swagger-parser",
+  "name": "@mora/swagger-parser",
   "version": "0.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "",
   "bin": "dist/bin/swagger-parser.js",
   "main": "dist/index.js",
