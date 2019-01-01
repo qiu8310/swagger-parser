@@ -15,8 +15,15 @@ const {TAB, EOL} = FORMAT
 
 export async function generate(cliOpts: {name?: string[]} = {}) {
   const root = lookupRootDir(__dirname)
-  await series(getConfig(), async c => {
-    if (cliOpts.name && cliOpts.name.length && !cliOpts.name.includes(c.name)) return
+  const configs = getConfig()
+  const names = configs.map(c => c.name).map(n => `'${n}'`).join(' | ')
+
+  await series(configs, async c => {
+    if (cliOpts.name && cliOpts.name.length) {
+      if (!cliOpts.name.includes(c.name)) return
+    } else if (c.disabled) {
+      return
+    }
 
     info(`解析 ${c.name} 项目 ...`)
     const json = await getSwaggerJson<swagger2.Schema>(c)
@@ -27,7 +34,7 @@ export async function generate(cliOpts: {name?: string[]} = {}) {
 
     const tpl = (...name: string[]) => path.join(root, 'template', ...name)
     const out = (...name: string[]) => path.resolve(c.outputDir, ...name)
-    const data = {...getRenderData(json, tags), type, name: c.name}
+    const data = {...getRenderData(json, tags), type, name: c.name, names}
 
     renderWhenNotExist(tpl(`common-${type}`), out('..', `common-${type}`), data, language)
     renderWhenNotExist(tpl('base'), out('base'), data, language)

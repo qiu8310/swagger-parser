@@ -9,7 +9,7 @@ const configs = [
     type: 'fe',
     language: 'ts',
     // json: "http://192.168.35.74:9560/v2/api-docs",
-    json: 'example-json/petstore.json',
+    json: '../../example-json/petstore.json',
     docPrefix: 'https://petstore.swagger.io/#',
     tagNameMap: (name) => {
       return name === 'pet'
@@ -46,7 +46,7 @@ const configs = [
   {
     name: 'credit',
     type: 'fe',
-    json: 'example-json/credit.json',
+    json: '../../example-json/credit.json',
     operationMap(api) {
       api.omitParameter('body', 'userId', true)
         .omitResponse('escapeCode', true)
@@ -70,7 +70,7 @@ const configs = [
   },
   {
     name: 'instal',
-    json: 'example-json/instal.json',
+    json: '../../example-json/instal.json',
     operationMap(api) {
       api.omitParameter('body', 'userId', true)
         .omitResponse('respMsg', true)
@@ -80,8 +80,9 @@ const configs = [
   },
   {
     name: 'daybreak',
+    disabled: true,
     type: 'fe',
-    json: 'example-json/daybreak.json',
+    json: '../../example-json/daybreak.json',
     operationMap(api) {
       api.omitParameter('body', 'userId', true)
         .omitResponse('resultCode', true)

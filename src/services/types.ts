@@ -91,6 +91,8 @@ export interface Mock {
 export interface Config extends parser2.Options {
   /** 指定名称，每个配置项应该保证名称唯一 */
   name: string
+  /** 禁用，即运行命令时不会自动更新，除非指定了 name 为当前 name */
+  disabled?: boolean
   /** 指定是给前端用的还是给 node 用的 api，默认 fe */
   type?: 'fe' | 'node'
   /** 生成 javascript 还是 typescript 代码，默认 ts */

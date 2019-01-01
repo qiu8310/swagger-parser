@@ -28,8 +28,9 @@ export function getConfig() {
 
   // 格式化 json
   configs.forEach(c => {
-    c.outputDir = path.resolve(path.dirname(filePath), c.outputDir || c.name)
-    if (!isUrl(c.json)) c.json = path.resolve(root, c.json)
+    let configRoot = path.dirname(filePath)
+    c.outputDir = path.resolve(configRoot, c.outputDir || c.name)
+    if (!isUrl(c.json)) c.json = path.resolve(configRoot, c.json)
   })
 
   return configs
