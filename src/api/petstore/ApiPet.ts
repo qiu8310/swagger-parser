@@ -26,18 +26,21 @@ if (__DEV__) {
         id: 1,
         name: 'Pet种类 3',
       },
-      name: '猫632',
+      name: '猫886',
       photoUrls: [
-        'http://llss.qiniudn.com/d1b7711b6575bc8d24806eb4110978420.png',
-        'http://llss.qiniudn.com/dd9cb918ac624e719e173833423d8fc6c.jpg',
+        'http://llss.qiniudn.com/de630142571df3f0fb671289d946f4fef.png',
+        'http://llss.qiniudn.com/de36a4811f982c6f30aedb321d5dec20f.jpg',
+        'http://llss.qiniudn.com/d948b0ebb07848576c020f1a169599d62.jpg',
+        'http://llss.qiniudn.com/de630142571df3f0fb671289d946f4fef.png',
+        'http://llss.qiniudn.com/d0072bb62bbc8a3cc9087518097cad483.png',
       ],
       tags: [
         {
           id: 1,
-          name: 'YaE4LtVqGjGI2Is',
+          name: 'L0OGda',
         },
       ],
-      status: 'available',
+      status: 'pending',
     }
   })
 }

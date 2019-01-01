@@ -71,6 +71,7 @@ const configs = [
   {
     name: 'instal',
     json: '../../example-json/instal.json',
+    disableMock: true,
     operationMap(api) {
       api.omitParameter('body', 'userId', true)
         .omitResponse('respMsg', true)

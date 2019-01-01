@@ -74,10 +74,11 @@ export async function generate(cliOpts: {name?: string[]} = {}) {
           })
         }
         if (!ref || !ref.mock || ref.mock.action === 'auto') {
-          dp.set(
-            `${apiName}.mock`,
-            {action: 'auto', code: operation.toMock(c.mock)
-          })
+          if (c.disableMock) {
+            dp.set(`${apiName}.mock`, false)
+          } else {
+            dp.set(`${apiName}.mock`, {action: 'auto', code: operation.toMock(c.mock)})
+          }
         }
         dp.set(`${apiName}.exists`, true)
 
