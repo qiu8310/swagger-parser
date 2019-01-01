@@ -18,7 +18,7 @@ export async function generate(cliOpts: {name?: string[]} = {}) {
   await series(getConfig(), async c => {
     if (cliOpts.name && cliOpts.name.length && !cliOpts.name.includes(c.name)) return
 
-    info(`解析 swagger 项目：${c.name} ...`)
+    info(`解析 ${c.name} 项目 ...`)
     const json = await getSwaggerJson<swagger2.Schema>(c)
     if (!/^2\./.test(json.swagger)) throw new Error(`不支持 swagger 版本：${json.swagger}`)
 

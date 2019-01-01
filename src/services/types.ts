@@ -10,6 +10,29 @@ export interface Mock {
     /** 时间戳的长度（js 中是 10 位， java 中是 13 位） */
     timestampLength?: 10 | 13
 
+    /**
+     * * 如果是函数，则直接返回要 mock 的数据
+     * * 如果是字符串，则会按下面的格式来格式化时间
+     *
+     *  FORMAT  |       EXAMPLE
+     *  --------|----------------
+     *  yyyy    |       2014
+     *  yy      |       14
+     *  m, mm   |       1, 01
+     *  M, MM   |       Jan, January
+     *  d, dd   |       2, 02
+     *  D, DD   |       Thur, Thursday
+     *  Do      |       2nd（Day of month with ordinal: 1st..31st）
+     *  H, HH   |       4, 04（24 hour time)
+     *  h, hh   |       4, 04 (12 hour time used with `a A`)
+     *  a, A    |       am, AM
+     *  i, ii   |       5, 05
+     *  s, ss   |       6, 06
+     *  x       |       1388646306
+     *  X       |       1388646306346
+     */
+    timeFormat?: string | ((timestamp: number) => string)
+
     /** 指定数组重复的次数，或者指定一个范围 */
     repeats?: number | {min: number, max: number}
   },

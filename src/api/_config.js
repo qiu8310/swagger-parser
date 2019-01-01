@@ -53,6 +53,10 @@ const configs = [
         .omitResponse('escapeMessage', true)
     },
     mock: {
+      config: {
+        timeFormat: (timestamp) => new Date(timestamp).toISOString()
+      },
+
       examples: [
         {match: 'cvv2',           value: '123'},
         {match: 'productCode',    value: ['CREDIT_INSTALMENT']},

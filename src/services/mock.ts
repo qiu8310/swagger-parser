@@ -1,6 +1,7 @@
 import {sample} from 'mora-common/util/array'
 import {range} from 'mora-common/util/math'
 import {snakeCase, capCamelCase} from 'mora-common/util/string'
+import * as formatDate from 'mora-scripts/libs/lang/formatDate'
 
 import {Operation} from '../struct/Operation'
 import {Type} from '../struct/Type'
@@ -95,7 +96,13 @@ function mockBasicWithKey(data: BasicData, prefixes: string[] = [], typeName: st
     const use10 = exampleStr.length === 10 || !exampleStr && config.timestampLength === 10
 
     // 日期(返回时间戳)
-    if (key.endsWith('Time')) return yod('@Date') + (use10 ? '' : mockNumber(3))
+    if (key.endsWith('Time')) {
+      let timestamp = parseInt(yod('@Date') + mockNumber(3), 10)
+      let format = config.timeFormat
+      if (typeof format === 'function') return format(timestamp)
+      else if (typeof format === 'string') return formatDate(new Date(timestamp), format)
+      return (use10 ? Math.round((timestamp / 1000)) : timestamp).toString()
+    }
     // 身分证
     if (equal(['idNo', 'idCard'])) return mask(generateIdNo(), exampleStr)
     // 银行卡

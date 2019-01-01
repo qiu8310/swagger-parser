@@ -26,19 +26,19 @@ if (__DEV__) {
         id: 1,
         name: 'Pet种类 1',
       },
-      name: '猫710',
+      name: '猫291',
       photoUrls: [
-        'http://llss.qiniudn.com/df99d8b1259f8ac34a9590d7fd83e746d.jpg',
-        'http://llss.qiniudn.com/dcaca24a3ea9f4bf88b59e17650ed2b78.png',
-        'http://llss.qiniudn.com/de18381409caf8784cbc717c975353060.jpg',
+        'http://llss.qiniudn.com/d49523ccc8c872de1a255e8879ff0548c.jpg',
+        'http://llss.qiniudn.com/d3b6a66612b8516fc334531a4f820e99a.jpg',
+        'http://llss.qiniudn.com/d11258715ca4af94e73f28b6a6d51aac1.jpg',
       ],
       tags: [
         {
           id: 1,
-          name: 'W9VUoJV1m23Icvk',
+          name: 'fIiDKB',
         },
       ],
-      status: 'available',
+      status: 'sold',
     }
   })
 }
