@@ -1,9 +1,10 @@
 const foeApi = require('@hujiang/foe-api')
+const middleware = require('@hujiang/foe-api/frontend')
+
 /**
  * 默认配置，可以在子 base.ts 文件中修改
  */
 const defaultApplicationOpts = {
-  disableArgRequireCheck: true,
   debug: __DEV__,
   mock: {
     enabled: false,
@@ -15,19 +16,19 @@ function createApplication(type, opts) {
   opts = Object.assign({}, defaultApplicationOpts, opts)
   let app = new foeApi.Application(opts)
   app.use(
-    foeApi.middleware.debug(),
+    middleware.debug(),
     async (ctx, next) => {
         await next()
         if (ctx.error && ctx.res && ctx.res.status === 401) {
           // @TODO: 判断接口返回的状态，可能需要在这里跳登录页去
         }
       },
-      foeApi.middleware.foe(),
-      foeApi.middleware.mock({
+      middleware.foe(),
+      middleware.mock({
         app,
         mockEnvKey: __PROJECT__
       }),
-      foeApi.middleware.fetch()
+      middleware.fetch()
   )
   return app
 }
