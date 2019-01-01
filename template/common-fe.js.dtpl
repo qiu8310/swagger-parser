@@ -5,7 +5,6 @@ const foeApi = require('@hujiang/foe-api')
 const defaultApplicationOpts = {
   disableArgRequireCheck: true,
   debug: __DEV__,
-  noEmitError: true,
   mock: {
     enabled: false,
     delay: Math.random() * 1400

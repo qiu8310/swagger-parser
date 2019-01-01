@@ -6,7 +6,6 @@ import {Application, RequestConfig, middleware} from '@hujiang/foe-api'
 const defaultApplicationOpts: RequestConfig.Init = {
   disableArgRequireCheck: true,
   debug: __DEV__,
-  noEmitError: true,
   mock: {
     enabled: false,
     delay: Math.random() * 1400
