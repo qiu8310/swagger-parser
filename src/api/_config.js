@@ -12,12 +12,12 @@ const configs = [
     json: '../../example-json/petstore.json',
     docPrefix: 'https://petstore.swagger.io/#',
     showUpdateLog: true,
-    tagNameMap: (name) => {
-      return name === 'pet'
-    },
-    apiNameMap: (name) => {
-      return name.startsWith('getPet') || name.startsWith('findPet')
-    },
+    // tagNameMap: (name) => {
+    //   return name === 'pet'
+    // },
+    // apiNameMap: (name) => {
+    //   return name.startsWith('getPet') || name.startsWith('findPet')
+    // },
     mock: {
       config: {
         repeats: {min: 2, max: 5}
@@ -67,7 +67,7 @@ const configs = [
         {match: 'supportedTerms', value: [[3, 6], [3, 6, 9], [3, 6, 9, 12]]},
         {match: 'term | terms',   value: [3, 6, 9, 12]},
         {match: 'validThru',      value: '{@Date("MMDD", 10)}'}
-      ]
+      ],
     }
   },
   {

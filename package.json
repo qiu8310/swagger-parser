@@ -20,7 +20,7 @@
   "author": "Mora <qiuzhongleiabc@126.com> (https://github.com/qiu8310)",
   "license": "MIT",
   "devDependencies": {
-    "@hujiang/foe-api": "0.3.0",
+    "@hujiang/foe-api": "0.4.0",
     "tslint": "5.11.0",
     "typescript": "3.2.2"
   },
