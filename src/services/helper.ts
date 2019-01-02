@@ -102,7 +102,7 @@ export function parseApiFile(content: string) {
 
   content.replace(regexp, (_, id, feature, action, code) => {
     if (!action) action = DEFAULT_ACTION[feature]
-    dp.set(`${id}.exists`, false) // 遍历 api 的时候才会将它设置成 true
+    dp.set(`${id}.exists`, false) // 遍历 api 的时候才会将它设置成 true，如果此值一直是 false，则相关 api 会被移除
     dp.set(`${id}.${feature}`, {action, code: code.trim()})
     return _
   })
@@ -119,6 +119,7 @@ export function groupApi2File(api: ApiFileStruct) {
     // let hasCode = base && exists || mock
     // if (hasCode) rows.push(`//#region ${id}`)
 
+    // 只有存在的 或者是手动维护的 api 才保留，其它的不继续保存在文件中
     if (base && (exists || base.action === 'manual')) {
       rows.push(`//#region ${id}--base ${base.action ? base.action : DEFAULT_ACTION.base}`)
       rows.push(base.code)

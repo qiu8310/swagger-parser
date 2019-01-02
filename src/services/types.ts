@@ -108,6 +108,8 @@ export interface Config extends parser2.Options {
 
   /** 是否输出 generate 相关的日志 */
   showGenerateLog?: boolean
+  /** 显示更新日志 */
+  showUpdateLog?: boolean
 
   /** 生成的 api 的名称，默认使用 Api[TagName] 的结构 */
   fileNameMap?: (oldName: string) => string | boolean

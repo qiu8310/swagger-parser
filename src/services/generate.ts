@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra'
 import {series} from 'mora-common/util/async'
 import {capCamelCase} from 'mora-common/util/string'
-import {info} from 'mora-scripts/libs/sys'
+import {info, clog} from 'mora-scripts/libs/sys'
 
 import * as path from 'path'
 import {FORMAT} from '../config'
@@ -13,19 +13,32 @@ import {getConfig, lookupRootDir, getSwaggerJson, writeFile, parseApiFile, getFi
 
 const {TAB, EOL} = FORMAT
 
-export async function generate(cliOpts: {name?: string[]} = {}) {
+export async function generate(cliOpts: {name?: string[], force?: boolean, mock?: boolean, base?: boolean} = {}) {
   const root = lookupRootDir(__dirname)
   const configs = getConfig()
-  const names = configs.map(c => c.name).map(n => `'${n}'`).join(' | ')
 
-  await series(configs, async c => {
-    if (cliOpts.name && cliOpts.name.length) {
-      if (!cliOpts.name.includes(c.name)) return
+  const onlyUpdateMock = cliOpts.mock && !cliOpts.base
+  const onlyUpdateBase = cliOpts.base && !cliOpts.mock
+  const userConfigs = (cliOpts.name || []).map(c => {
+    let [name, tagName, apiName] = c.split('.')
+    return {name, tagName, apiName}
+  })
+
+  const matchUserConfigs = (name: string, tagName: string, apiName: string) => {
+    return !userConfigs.length ? true : userConfigs.find(obj => obj.name === name && (!obj.tagName || obj.tagName === tagName) && (!obj.apiName || obj.apiName === apiName))
+  }
+
+  await series(configs, async (c, configIndex) => {
+    let userConfig: typeof userConfigs[0] | undefined
+    if (userConfigs.length) {
+      userConfig = userConfigs.find(u => u.name === c.name)
+      if (!userConfig) return
     } else if (c.disabled) {
       return
     }
 
-    info(`解析 ${c.name} 项目 ...`)
+    info(`解析 ${c.name} 项目 ${c.showUpdateLog && userConfig ? JSON.stringify(userConfig) : ''} ...`)
+
     const json = await getSwaggerJson<swagger2.Schema>(c)
     if (!/^2\./.test(json.swagger)) throw new Error(`不支持 swagger 版本：${json.swagger}`)
 
@@ -34,7 +47,7 @@ export async function generate(cliOpts: {name?: string[]} = {}) {
 
     const tpl = (...name: string[]) => path.join(root, 'template', ...name)
     const out = (...name: string[]) => path.resolve(c.outputDir, ...name)
-    const data = {...getRenderData(json, tags), type, name: c.name, names}
+    const data = {...getRenderData(json, tags), type, name: c.name}
 
     renderWhenNotExist(tpl(`common-${type}`), out('..', `common-${type}`), data, language)
     renderWhenNotExist(tpl('base'), out('base'), data, language)
@@ -60,27 +73,31 @@ export async function generate(cliOpts: {name?: string[]} = {}) {
       const {api, dp} = parseApiFile(getFile(fullFileName))
 
       eachObject(tagObj, (apiName, operation) => {
-        if (c.showGenerateLog) {
-          console.log(`  generate ${tagName}.${apiName} ${operation.opt.path}`)
-        }
+        if (c.showGenerateLog) console.log(`  generate ${tagName}.${apiName} ${operation.opt.path}`)
         modal.push(`${TAB}export namespace ${apiName} {`)
         modal.push(prefix(operation.toModal(), TAB.repeat(2)))
 
         let ref = api[apiName]
-        if (!ref || !ref.base || ref.base.action === 'auto') {
-          dp.set(
-            `${apiName}.base`,
-            {action: 'auto', code: operation.toBase({...data, docPrefix: c.docPrefix, language})
-          })
-        }
-        if (!ref || !ref.mock || ref.mock.action === 'auto') {
-          if (c.disableMock) {
-            dp.set(`${apiName}.mock`, false)
-          } else {
-            dp.set(`${apiName}.mock`, {action: 'auto', code: operation.toMock(c.mock)})
+        let id = `${c.name}.${tagName}.${apiName}`
+        if (matchUserConfigs(c.name, tagName, apiName)) {
+          if (!onlyUpdateMock && (!ref || !ref.base || ref.base.action === 'auto' || cliOpts.force)) {
+            if (c.showUpdateLog) updateLog('Update Base', `${id}`)
+            dp.set(
+              `${apiName}.base`,
+              {action: 'auto', code: operation.toBase({...data, docPrefix: c.docPrefix, language})
+            })
+          }
+          if (!onlyUpdateBase && (!ref || !ref.mock || ref.mock.action === 'auto' || cliOpts.force)) {
+            if (c.disableMock) {
+              if (c.showUpdateLog) updateLog('Disable Mock', `${id}`)
+              dp.set(`${apiName}.mock`, false)
+            } else {
+              if (c.showUpdateLog) updateLog('Update Mock', `${id}`)
+              dp.set(`${apiName}.mock`, {action: 'auto', code: operation.toMock(c.mock)})
+            }
           }
         }
-        dp.set(`${apiName}.exists`, true)
+        dp.set(`${apiName}.exists`, true) // 标识这个 api 存在，否则会被移除
 
         modal.push(`${TAB}}`)
       })
@@ -172,4 +189,8 @@ function prefix(content: string, prefixStr: string) {
       return ''
     }
   }).join(EOL)
+}
+
+function updateLog(action: string, id: string) {
+  clog(`  %c${action} %c${id}`, 'white', 'magenta')
 }

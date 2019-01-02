@@ -11,11 +11,12 @@ const configs = [
     // json: "http://192.168.35.74:9560/v2/api-docs",
     json: '../../example-json/petstore.json',
     docPrefix: 'https://petstore.swagger.io/#',
+    showUpdateLog: true,
     tagNameMap: (name) => {
       return name === 'pet'
     },
     apiNameMap: (name) => {
-      return name.startsWith('getPet')
+      return name.startsWith('getPet') || name.startsWith('findPet')
     },
     mock: {
       config: {
@@ -46,6 +47,7 @@ const configs = [
   {
     name: 'credit',
     type: 'fe',
+    disabled: true,
     json: '../../example-json/credit.json',
     operationMap(api) {
       api.omitParameter('body', 'userId', true)
@@ -72,6 +74,7 @@ const configs = [
     name: 'instal',
     json: '../../example-json/instal.json',
     disableMock: true,
+    disabled: true,
     operationMap(api) {
       api.omitParameter('body', 'userId', true)
         .omitResponse('respMsg', true)
