@@ -156,6 +156,8 @@ export class ExampleMock {
       res = clone(sample(value))
     } else if (typeof value === 'string' && value.startsWith('{') && value.endsWith('}')) {
       res = yod(value.substr(1, value.length - 2))
+    } else if (typeof value === 'boolean') {
+      res = yod('@Boolean')
     } else {
       res = value
       isExample = true

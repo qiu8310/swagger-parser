@@ -90,6 +90,25 @@ function mockBasicWithKey(data: BasicData, prefixes: string[] = [], typeName: st
    */
   const equal = (keys: string[]) => keys.some(k => lowerKey === k.toLowerCase() || key.endsWith(capCamelCase(k)))
 
+  if (typeof exampleValue === 'string' || typeof exampleValue === 'number') {
+    let mockValue = exampleValue.toString().split('').map(s => {
+      if (/[a-z]/.test(s)) return yod('@Char("lower")')
+      if (/[A-Z]/.test(s)) return yod('@Char("upper")')
+      if (/[0-9]/.test(s)) return yod('@Char("number")')
+      // 如果是中文
+      if (/[\u4e00-\u9fa5]/.test(s)) return yod('@CW')
+
+      return s
+    }).join('')
+
+    if (isNumber) {
+      if (mockValue[0] === '0') mockValue = '1' + mockValue.substr(1) // 第一位不能为 0
+      return parseFloat(mockValue)
+    }
+
+    return mockValue
+  }
+
   // 单独处理各个类型
   if (isString) {
     const exampleStr = typeof exampleValue === 'string' ? exampleValue : ''
@@ -104,9 +123,9 @@ function mockBasicWithKey(data: BasicData, prefixes: string[] = [], typeName: st
       return (use10 ? Math.round((timestamp / 1000)) : timestamp).toString()
     }
     // 身分证
-    if (equal(['idNo', 'idCard'])) return mask(generateIdNo(), exampleStr)
+    if (equal(['idNo', 'idCard'])) return generateIdNo()
     // 银行卡
-    if (equal(['bankNo', 'bankCard', 'bankCardNo', 'bankAccountNo'])) return mask(generateBankNo(), exampleStr)
+    if (equal(['bankNo', 'bankCard', 'bankCardNo', 'bankAccountNo'])) return generateBankNo()
     if (equal(['bankName', 'bankCardName', 'bankAccountName'])) return sample(['农业银行', '交通银行', '中国银行', '建设银行'])
 
     // 内部的一些字段
@@ -120,7 +139,7 @@ function mockBasicWithKey(data: BasicData, prefixes: string[] = [], typeName: st
     if (equal(['firstName'])) return yod('@FirstName')
     if (equal(['lastName'])) return yod('@LastName')
     if (equal(['nickname'])) return yod('@Nickname')
-    if (contain(['phone', 'mobile', 'tel'])) return mask(yod('@Telephone'), exampleStr)
+    if (contain(['phone', 'mobile', 'tel'])) return yod('@Telephone')
     if (contain(['email'])) return yod('@Email')
     if (contain(['age'])) return yod('@Age')
     if (contain(['avatar'])) return yod('@Avatar')
@@ -143,24 +162,6 @@ function mockBasicWithKey(data: BasicData, prefixes: string[] = [], typeName: st
     }
   }
 
-  if (exampleValue != null) {
-    let mockValue = exampleValue.toString().split('').map(s => {
-      if (/[a-z]/.test(s)) return yod('@Char("lower")')
-      if (/[A-Z]/.test(s)) return yod('@Char("upper")')
-      if (/[0-9]/.test(s)) return yod('@Char("number")')
-      // 如果是中文
-      if (/[\u4e00-\u9fa5]/.test(s)) return yod('@CW')
-
-      return s
-    }).join('')
-
-    if (isNumber) {
-      if (mockValue[0] === '0') mockValue = '1' + mockValue.substr(1) // 第一位不能为 0
-      return parseFloat(mockValue)
-    }
-    return mockValue
-  }
-
   return mockBasic(typeName)
 }
 
@@ -178,14 +179,4 @@ function mockBasic(typeName: string) {
 
 function mockNumber(len: number) {
   return yod(`@Char("number").repeat(${len}).join("")`)
-}
-
-function mask(str: string, exampleStr: string) {
-  if (exampleStr && exampleStr.includes('*')) {
-    let mat = /\*+/.exec(exampleStr)
-    if (mat) {
-      return str.substr(0, mat.index) + mat[0] + str.substr(mat[0].length + mat.index - exampleStr.length)
-    }
-  }
-  return str
 }
