@@ -41,6 +41,13 @@ export namespace parser2 {
     smartTagName?: boolean
 
     /**
+     * 将返回值中所有字段都标识为 required (方便在 ts 中自动补全，而不需要先用 if 判断)
+     *
+     * 默认为 true
+     */
+    returnsRequired?: boolean
+
+    /**
      * 将 tag 的名称映射成另一个
      *
      * 如果返回 false，则整个 tag 和它下面的 api 都不会生成 json
@@ -152,7 +159,7 @@ export function parser2(schema: swagger2.Schema, options: parser2.Options = {}) 
         if (r) {
           r = mergeRef(r as any, schema) as swagger2.ResponseObject
           if (r.schema) {
-            returnType = getSchemaObjectType(schema, r.schema, true)
+            returnType = getSchemaObjectType(schema, r.schema, options.returnsRequired !== false ? true : undefined)
           }
           returnType.desc.push(r.description)
         }
@@ -274,7 +281,9 @@ function getSchemaObjectType(schema: swagger2.Schema, obj: swagger2.SchemaObject
     eachObject(mergedObj.properties || {}, (propKey, propValue) => {
       const def = new Definition(propKey, getSchemaObjectType(schema, propValue, defaultRequired))
       parse2definition(propValue, def)
-      def.required = defaultRequired && !required.length ? defaultRequired : required.includes(propKey)
+      if (typeof defaultRequired === 'boolean') def.required = defaultRequired
+      else def.required = required.includes(propKey)
+
       defs.push(def)
     })
   } else {

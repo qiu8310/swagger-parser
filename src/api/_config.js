@@ -16,7 +16,8 @@ const configs = [
     //   return name === 'pet'
     // },
     // apiNameMap: (name) => {
-    //   return name.startsWith('getPet') || name.startsWith('findPet')
+    //   return name.startsWith('addPet')
+    //   // return name.startsWith('getPet') || name.startsWith('findPet')
     // },
     mock: {
       config: {
