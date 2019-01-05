@@ -40,7 +40,17 @@ function mock2value(data: BasicData, type: Type, mockKey: string = '', prefixes:
   let em = data.exampleMocks.find(m => m.match(prefixes, !Type.isNotSimpleType(type)))
   if (em) {
     emRes = em.mock(prefixes)
-    if (!emRes.isExample) result = emRes.value
+    if (!emRes.isExample) {
+      if (
+        // 限制生成的值的类型要一致，否则生成了错误的类型也会报错
+        typeof emRes.value === 'string' && type.name === 'string' ||
+        typeof emRes.value === 'number' && type.name === 'number' ||
+        typeof emRes.value === 'boolean' && type.name === 'boolean' ||
+        typeof emRes.value === 'object' // 如果是对象希望你知道自己在做什么
+      ) {
+        result = emRes.value
+      }
+    }
   }
 
   if (typeof result === 'undefined') {
@@ -61,7 +71,6 @@ function mock2value(data: BasicData, type: Type, mockKey: string = '', prefixes:
       }
     }
   }
-
 
   if (data.setting.generator) result = clone(data.setting.generator(data.operation, prefixes, result))
 
@@ -106,7 +115,9 @@ function mockBasicWithKey(data: BasicData, prefixes: string[] = [], typeName: st
       return parseFloat(mockValue)
     }
 
-    return mockValue
+    if (isString) {
+      return mockValue
+    }
   }
 
   // 单独处理各个类型
