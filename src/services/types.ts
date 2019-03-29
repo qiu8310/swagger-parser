@@ -35,6 +35,22 @@ export interface Mock {
 
     /** 指定数组重复的次数，或者指定一个范围 */
     repeats?: number | {min: number, max: number}
+
+    /** 分页接口，可以自动 mock 多条数据：空、单页、多页 */
+    // pages?: Array<{
+    //   /** 总页数字段，pageCountField 和 itemCountField 至少需要指定一个 */
+    //   pageCountField?: string
+    //   /** 总条目字段（需要前端自己计算页数），pageCountField 和 itemCountField 至少需要指定一个 */
+    //   itemCountField?: string
+    //   /** 条目列表字段 */
+    //   itemListField: string,
+
+    //   /** 对生成的 mock 数据处理 */
+    //   map?<T>(result: T, op: Operation): T,
+
+    //   /** 排除指定的接口，这些接口不自动生成多条数据 */
+    //   excludes: Array<{tagName?: string, apiName?: string}>
+    // }>
   },
 
   /**
